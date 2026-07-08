@@ -26,18 +26,18 @@ onMounted(() => {
 
 <template>
   <main ref="appRef" class="shell">
-    <!-- Hero 区域 -->
-    <HeroSection
-      :generated-at="DATA.generatedAt"
-      :data-end-date="DATA.dataEndDate"
-      :source="DATA.source"
-    />
-
-    <!-- KPI 卡片 -->
-    <KpiCards
-      :kpis="DATA.kpis"
-      :supplier-types="DATA.supplierTypes"
-    />
+    <!-- Hero + KPI 合并行 -->
+    <div class="hero-kpi-row">
+      <HeroSection
+        :generated-at="DATA.generatedAt"
+        :data-end-date="DATA.dataEndDate"
+        :source="DATA.source"
+      />
+      <KpiCards
+        :kpis="DATA.kpis"
+        :supplier-types="DATA.supplierTypes"
+      />
+    </div>
 
     <!-- 主要内容网格 -->
     <section class="grid">
@@ -55,6 +55,7 @@ onMounted(() => {
       <div class="column-stack column-middle">
         <TrendCharts
           :month-trend="DATA.monthTrend"
+          :month-trend-zones="DATA.monthTrendZones"
           :week-trend="DATA.weekTrend"
         />
       </div>
@@ -104,6 +105,7 @@ onMounted(() => {
 .grid {
   display: grid;
   grid-template-columns: 1.16fr 1.7fr .98fr;
+  grid-template-rows: auto auto 1fr;
   gap: 16px;
   margin-top: 16px;
   align-items: stretch;
@@ -112,11 +114,33 @@ onMounted(() => {
 .column-stack {
   display: grid;
   gap: 16px;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
 }
 
 .column-middle {
-  grid-template-rows: 1fr;
+  grid-template-rows: subgrid;
+}
+
+.column-middle > * {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: 1 / -1;
+}
+
+.column-middle > * > :first-child {
+  grid-row: 1;
+}
+
+.column-middle > * > :last-child {
+  grid-row: 2 / 4;
+}
+
+.hero-kpi-row {
+  display: grid;
+  grid-template-columns: 1.16fr 2.68fr;
+  gap: 16px;
+  align-items: stretch;
 }
 
 .grid-bottom {

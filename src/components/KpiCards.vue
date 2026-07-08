@@ -15,48 +15,84 @@ const ecommerce = props.supplierTypes.find(x => x.name.includes('电商')) || { 
 const localCountPct = Math.round(local.count / Math.max(1, props.kpis.totalOrders) * 100)
 const ecommerceCountPct = Math.round(ecommerce.count / Math.max(1, props.kpis.totalOrders) * 100)
 
+const momRate = props.kpis.momRate
+const momLabel = momRate === null || momRate === undefined
+  ? '上月无数据'
+  : (momRate >= 0 ? `↑ ${momRate}%` : `↓ ${Math.abs(momRate)}%`)
+const momColor = momRate === null || momRate === undefined
+  ? '#9ca3af'
+  : (momRate >= 0 ? '#16a34a' : '#e11d48')
+
 const cards = [
   {
-    label: '总交易收益',
-    value: props.kpis.totalAmount,
+    label: '总交易金额',
+    value: props.kpis.totalAmount || 0,
     format: 'money',
-    hint: `累计订单金额 ${props.kpis.totalAmount.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} 元`,
+    hint: '累计总金额',
     color: '#2563eb'
   },
   {
-    label: '总订单数',
-    value: props.kpis.totalOrders,
-    format: 'number',
-    hint: `笔均 ¥${Math.round(props.kpis.avgAmount).toLocaleString('zh-CN')}`,
+    label: '本周交易金额',
+    value: props.kpis.weekAmount || 0,
+    format: 'money',
+    hint: `本周 ${props.kpis.weekOrders || 0} 笔`,
     color: '#0d9488'
   },
   {
-    label: '本周交易',
-    value: props.kpis.weekAmount,
+    label: '今日交易金额',
+    value: props.kpis.todayAmount || 0,
     format: 'money',
-    hint: `本周订单 ${props.kpis.weekOrders} 笔`,
+    hint: `今日 ${props.kpis.todayOrders || 0} 笔`,
     color: '#b7791f'
   },
   {
-    label: '活跃专区',
-    value: props.kpis.zoneCount,
+    label: '采购企业数',
+    value: props.kpis.buyerCount || 0,
     format: 'number',
-    hint: `采购企业 ${props.kpis.buyerCount} 家`,
+    hint: '产生订单的企业数量',
     color: '#7c3aed'
   },
   {
-    label: '供应商数',
-    value: props.kpis.supplierCount,
-    format: 'number',
-    hint: `本地 ${localCountPct}% / 电商 ${ecommerceCountPct}%`,
-    color: '#16a34a'
+    label: '月环比同期',
+    value: 0,
+    format: 'mom',
+    hint: `本月 ¥${((props.kpis.curMonthAmount || 0) / 10000).toFixed(1)}万 vs 上月同期 ¥${((props.kpis.prevMonthAmount || 0) / 10000).toFixed(1)}万`,
+    color: momRate >= 0 ? '#16a34a' : '#e11d48'
   },
   {
-    label: '集中度',
-    value: Math.round(props.kpis.buyerTop10Share * 100),
-    format: 'percent',
-    hint: `供应商 TOP10 占 ${Math.round(props.kpis.supplierTop10Share * 100)}%`,
-    color: '#c53030'
+    label: '总订单数',
+    value: props.kpis.totalOrders || 0,
+    format: 'number',
+    hint: `笔均 ¥${Math.round(props.kpis.avgAmount || 0).toLocaleString('zh-CN')}`,
+    color: '#2563eb'
+  },
+  {
+    label: '本周订单数',
+    value: props.kpis.weekOrders || 0,
+    format: 'number',
+    hint: '本周累计笔数',
+    color: '#0d9488'
+  },
+  {
+    label: '今日订单数',
+    value: props.kpis.todayOrders || 0,
+    format: 'number',
+    hint: '今日订单笔数',
+    color: '#b7791f'
+  },
+  {
+    label: '供应商数',
+    value: props.kpis.supplierCount || 0,
+    format: 'number',
+    hint: '产生订单的供应商数量',
+    color: '#7c3aed'
+  },
+  {
+    label: '笔均金额',
+    value: props.kpis.avgAmount || 0,
+    format: 'money',
+    hint: '每笔订单均值',
+    color: '#e11d48'
   }
 ]
 
@@ -65,7 +101,7 @@ function formatValue(value, format) {
     if (value >= 10000) return '¥' + (value / 10000).toFixed(1) + '万'
     return '¥' + Math.round(value).toLocaleString('zh-CN')
   }
-  if (format === 'percent') return value + '%'
+  if (format === 'mom') return momLabel
   return Math.round(value).toLocaleString('zh-CN')
 }
 
@@ -83,11 +119,17 @@ onMounted(() => {
     clearProps: 'transform,opacity'
   })
 
-  // 数字滚动动画
+  // 数字滚动动画（mom格式跳过数字滚动，直接显示）
   cardElements.forEach((card, index) => {
     const valueEl = card.querySelector('.value')
     const targetValue = cards[index].value
     const format = cards[index].format
+
+    if (format === 'mom') {
+      valueEl.textContent = momLabel
+      valueEl.style.color = momColor
+      return
+    }
 
     const obj = { value: 0 }
     gsap.to(obj, {
@@ -121,9 +163,9 @@ onMounted(() => {
 <style scoped>
 .kpis {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 0;
   align-items: stretch;
 }
 
@@ -132,9 +174,8 @@ onMounted(() => {
   background: var(--panel);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px 18px;
-  min-height: 120px;
-  border-top: 3px solid;
+  padding: 8px 10px;
+  border-top: 2px solid;
   transition: box-shadow var(--transition), transform var(--transition);
   cursor: default;
   display: flex;
@@ -148,22 +189,29 @@ onMounted(() => {
 
 .label {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .value {
-  margin-top: 12px;
-  font-size: 28px;
-  font-weight: 700;
+  margin-top: 3px;
+  font-size: 30px;
+  font-weight: 800;
   white-space: nowrap;
   color: var(--ink);
+  line-height: 1.2;
 }
 
 .hint {
-  margin-top: auto;
-  padding-top: 10px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.7;
 }
 </style>

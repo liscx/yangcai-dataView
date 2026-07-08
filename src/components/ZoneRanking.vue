@@ -27,16 +27,27 @@ const maxValue = computed(() => {
 })
 
 const zoneTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.amount, 0))
+const orderTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.count, 0))
 const top3Share = computed(() => {
-  const top3 = props.zoneRank.slice(0, 3).reduce((s, x) => s + x.amount, 0)
+  const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.amount, 0)
   return Math.round(top3 / Math.max(1, zoneTotal.value) * 100)
 })
+const top3 = computed(() => sortedData.value.slice(0, 3))
+const avgPerOrder = computed(() => Math.round(zoneTotal.value / Math.max(1, orderTotal.value)))
 
 const insights = computed(() => [
-  ['TOP1 占比', Math.round(props.zoneRank[0].amount / Math.max(1, zoneTotal.value) * 100) + '%'],
+  ['TOP1 占比', Math.round(sortedData.value[0].amount / Math.max(1, zoneTotal.value) * 100) + '%'],
   ['TOP3 占比', top3Share.value + '%'],
-  ['活跃专区', props.zoneRank.length + ' 个']
+  ['活跃专区', props.zoneRank.length + ' 个'],
+  ['笔均金额', '¥' + avgPerOrder.value.toLocaleString('zh-CN')]
 ])
+
+const medals = ['🥇', '🥈', '🥉']
+const medalColors = [
+  { bg: 'linear-gradient(135deg, #fef3c7, #fde68a)', border: '#f59e0b', text: '#92400e' },
+  { bg: 'linear-gradient(135deg, #f1f5f9, #e2e8f0)', border: '#94a3b8', text: '#475569' },
+  { bg: 'linear-gradient(135deg, #fed7aa, #fdba74)', border: '#f97316', text: '#9a3412' }
+]
 
 function formatValue(item) {
   if (mode.value === 'amount') {
@@ -46,9 +57,19 @@ function formatValue(item) {
   return item.count + ' 笔'
 }
 
+function formatCompact(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
+  return Math.round(n).toLocaleString('zh-CN')
+}
+
 function getBarWidth(item) {
   const value = mode.value === 'amount' ? item.amount : item.count
   return (value / maxValue.value * 100) + '%'
+}
+
+function getShare(item) {
+  const total = mode.value === 'amount' ? zoneTotal.value : orderTotal.value
+  return Math.round((mode.value === 'amount' ? item.amount : item.count) / Math.max(1, total) * 100)
 }
 
 function switchMode(newMode) {
@@ -68,8 +89,15 @@ function switchMode(newMode) {
 
 onMounted(() => {
   if (!containerRef.value) return
-  const bars = containerRef.value.querySelectorAll('.fill')
-  gsap.from(bars, {
+  gsap.from(containerRef.value.querySelectorAll('.podium-card'), {
+    y: 12,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.1,
+    ease: 'power2.out',
+    delay: 0.3
+  })
+  gsap.from(containerRef.value.querySelectorAll('.fill'), {
     width: 0,
     duration: 0.8,
     stagger: 0.08,
@@ -94,6 +122,37 @@ onMounted(() => {
         >按订单</button>
       </div>
     </div>
+
+    <!-- Top3 领奖台 -->
+    <div class="podium">
+      <div
+        v-for="(item, i) in top3"
+        :key="item.name"
+        class="podium-card"
+        :style="{ background: medalColors[i].bg, borderColor: medalColors[i].border }"
+      >
+        <div class="podium-rank" :style="{ color: medalColors[i].text }">{{ medals[i] }}</div>
+        <div class="podium-info">
+          <div class="podium-name" :title="item.name">{{ item.name }}</div>
+          <div class="podium-stats">
+            <span class="podium-amount">¥{{ formatCompact(item.amount) }}</span>
+            <span class="podium-count">{{ item.count }} 单</span>
+          </div>
+          <div class="podium-bar-wrap">
+            <div
+              class="podium-bar"
+              :style="{
+                width: (item.amount / Math.max(1, zoneTotal) * 100) + '%',
+                background: medalColors[i].border
+              }"
+            ></div>
+          </div>
+          <div class="podium-share">{{ Math.round(item.amount / Math.max(1, zoneTotal) * 100) }}%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 完整排行条 -->
     <div class="bars">
       <div
         v-for="item in sortedData"
@@ -105,8 +164,11 @@ onMounted(() => {
           <div class="fill" :style="{ width: getBarWidth(item) }"></div>
         </div>
         <div class="bar-value">{{ formatValue(item) }}</div>
+        <div class="bar-share">{{ getShare(item) }}%</div>
       </div>
     </div>
+
+    <!-- 底部洞察 -->
     <div class="insights">
       <div v-for="[label, value] in insights" :key="label" class="insight-item">
         <span class="insight-label">{{ label }}</span>
@@ -169,15 +231,92 @@ h2 {
   box-shadow: 0 6px 15px rgba(215,25,32,.18);
 }
 
+/* Top3 领奖台 */
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.podium-card {
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 12px 10px 10px;
+  text-align: center;
+  position: relative;
+}
+
+.podium-rank {
+  font-size: 22px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.podium-info {
+  min-width: 0;
+}
+
+.podium-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.podium-stats {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.podium-amount {
+  font-weight: 700;
+  color: #263149;
+  font-size: 13px;
+}
+
+.podium-count {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.podium-bar-wrap {
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(0,0,0,.06);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.podium-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+.podium-share {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* 排行条 */
 .bars {
   display: grid;
-  gap: 11px;
+  gap: 9px;
 }
 
 .bar-row {
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) 2.4fr 86px;
-  gap: 10px;
+  grid-template-columns: minmax(100px, 1fr) 2fr 72px 36px;
+  gap: 8px;
   align-items: center;
   font-size: 13px;
 }
@@ -187,10 +326,11 @@ h2 {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ink);
+  font-size: 12px;
 }
 
 .track {
-  height: 11px;
+  height: 10px;
   border-radius: 999px;
   background: #edf1f7;
   overflow: hidden;
@@ -206,12 +346,20 @@ h2 {
 .bar-value {
   text-align: right;
   font-weight: 700;
+  font-size: 12px;
   color: #263149;
 }
 
+.bar-share {
+  text-align: right;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .insights {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid var(--line);
@@ -220,16 +368,16 @@ h2 {
 .insight-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .insight-label {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
 }
 
 .insight-value {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--ink);
 }

@@ -18,16 +18,56 @@ total_amount = round(orders['订单金额（元）'].sum(), 2)
 total_orders = len(orders)
 avg_amount = round(total_amount / total_orders, 2) if total_orders > 0 else 0
 
-# 本周数据（近7天）
+# 本周数据（自然周，周一到周日）
 if len(orders) > 0:
     orders['日期'] = pd.to_datetime(orders['订单创建时间'])
-    week_ago = orders['日期'].max() - pd.Timedelta(days=7)
-    week_orders = orders[orders['日期'] >= week_ago]
+    max_date = orders['日期'].max()
+    # 获取 max_date 所在周的周一 0点
+    week_start = max_date - pd.Timedelta(days=max_date.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_orders = orders[orders['日期'] >= week_start]
     week_amount = round(week_orders['订单金额（元）'].sum(), 2)
     week_count = len(week_orders)
+
+    # 今日数据
+    today_start = max_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_orders = orders[orders['日期'] >= today_start]
+    today_amount = round(today_orders['订单金额（元）'].sum(), 2)
+    today_count = len(today_orders)
+
+    # 月环比同期（本月1号到今天 vs 上月1号到上月同日）
+    cur_month_start = max_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    cur_month_orders = orders[(orders['日期'] >= cur_month_start) & (orders['日期'] <= max_date)]
+    cur_month_amount = round(cur_month_orders['订单金额（元）'].sum(), 2)
+
+    # 上月同期截止日（处理月份跨年和月末天数问题）
+    prev_month_end_day = max_date.day
+    if max_date.month == 1:
+        prev_month = 12
+        prev_year = max_date.year - 1
+    else:
+        prev_month = max_date.month - 1
+        prev_year = max_date.year
+    import calendar
+    max_day_in_prev = calendar.monthrange(prev_year, prev_month)[1]
+    prev_month_end_day = min(prev_month_end_day, max_day_in_prev)
+    prev_month_start = max_date.replace(year=prev_year, month=prev_month, day=1, hour=0, minute=0, second=0, microsecond=0)
+    prev_month_end = max_date.replace(year=prev_year, month=prev_month, day=prev_month_end_day, hour=23, minute=59, second=59, microsecond=999999)
+    prev_month_orders = orders[(orders['日期'] >= prev_month_start) & (orders['日期'] <= prev_month_end)]
+    prev_month_amount = round(prev_month_orders['订单金额（元）'].sum(), 2)
+
+    if prev_month_amount > 0:
+        mom_rate = round((cur_month_amount - prev_month_amount) / prev_month_amount * 100, 1)
+    else:
+        mom_rate = None
 else:
     week_amount = 0
     week_count = 0
+    today_amount = 0
+    today_count = 0
+    cur_month_amount = 0
+    prev_month_amount = 0
+    mom_rate = None
 
 # 活跃专区数
 zone_count = orders['专区名称'].nunique()
@@ -55,21 +95,47 @@ supplier_types = orders.groupby('供应商类型').agg(
 supplier_types['amount'] = supplier_types['amount'].round(2)
 supplier_types_list = supplier_types.rename(columns={'供应商类型': 'name'}).to_dict('records')
 
-# ============ 月度趋势 ============
+# ============ 月度趋势（最近6个月，按专区拆分） ============
 if len(orders) > 0:
-    orders['月份'] = orders['日期'].dt.month.apply(lambda x: f"{int(x)}月" if pd.notna(x) else "")
-    month_trend = orders.groupby('月份').agg(
-        count=('订单号', 'count'),
-        amount=('订单金额（元）', 'sum')
+    max_date = orders['日期'].max()
+    six_months_ago = max_date - pd.DateOffset(months=5)
+    six_months_ago = six_months_ago.replace(day=1)
+    month_data = orders[orders['日期'] >= six_months_ago].copy()
+    month_data['月份'] = month_data['日期'].apply(lambda x: f"{x.year}年{x.month}月" if pd.notna(x) else "")
+
+    # 保留所有专区，不再归为"其他"
+    month_data['专区分组'] = month_data['专区名称']
+
+    # 按月+专区汇总
+    month_zone = month_data.groupby(['月份', '专区分组']).agg(
+        amount=('订单金额（元）', 'sum'),
+        count=('订单号', 'count')
     ).reset_index()
-    month_trend['amount'] = month_trend['amount'].round(2)
-    # 按月份排序
-    month_order = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
-    month_trend['sort_key'] = month_trend['月份'].apply(lambda x: month_order.index(x) if x in month_order else 99)
-    month_trend = month_trend.sort_values('sort_key')
-    month_trend_list = month_trend.rename(columns={'月份': 'label'}).drop(columns=['sort_key']).to_dict('records')
+    month_zone['amount'] = month_zone['amount'].round(2)
+
+    # 获取所有月份（排序）
+    month_dates = month_data.groupby('月份')['日期'].min().sort_values()
+    months_sorted = month_dates.index.tolist()
+
+    # 获取所有专区（按金额排序）
+    zones_sorted = month_zone.groupby('专区分组')['amount'].sum().sort_values(ascending=False).index.tolist()
+
+    # 构建输出格式
+    month_trend_list = []
+    for month in months_sorted:
+        month_zone_data = month_zone[month_zone['月份'] == month]
+        zone_dict = dict(zip(month_zone_data['专区分组'], month_zone_data['amount']))
+        item = {'label': month}
+        item['count'] = int(month_zone_data['count'].sum())
+        for zone in zones_sorted:
+            item[zone] = zone_dict.get(zone, 0)
+        month_trend_list.append(item)
+
+    # 保存专区列表到全局数据
+    month_trend_zones = zones_sorted
 else:
     month_trend_list = []
+    month_trend_zones = []
 
 # ============ 近一周趋势 ============
 if len(orders) > 0:
@@ -173,14 +239,20 @@ result = {
         "zoneCount": zone_count,
         "weekAmount": week_amount,
         "weekOrders": week_count,
+        "todayAmount": today_amount,
+        "todayOrders": today_count,
         "buyerCount": buyer_count,
         "supplierCount": supplier_count,
+        "curMonthAmount": cur_month_amount,
+        "prevMonthAmount": prev_month_amount,
+        "momRate": mom_rate,
         "buyerTop10Share": buyer_top10_share,
         "supplierTop10Share": supplier_top10_share
     },
     "zoneRank": zone_rank_list,
     "supplierTypes": supplier_types_list,
     "monthTrend": month_trend_list,
+    "monthTrendZones": month_trend_zones,
     "weekTrend": week_trend_list,
     "statusRank": status_rank_list,
     "amountBands": amount_bands_list,
