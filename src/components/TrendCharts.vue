@@ -16,6 +16,9 @@ const monthChart = shallowRef(null)
 const weekChart = shallowRef(null)
 const containerRef = ref(null)
 const viewMode = ref('total') // 'total' | 'zone'
+const canToggle = ref(false)
+const toggleState = ref(false) // false = 全选状态, true = 有取消状态
+const legendData = ref([])
 
 // 专区颜色 - 柔和专业的配色
 const zoneColors = [
@@ -27,14 +30,25 @@ const zoneColors = [
   { main: '#f97316', light: '#fed7aa' },
   { main: '#06b6d4', light: '#a5f3fc' },
   { main: '#84cc16', light: '#d9f99d' },
-  { main: '#ec4899', light: '#fbcfe8' }
+  { main: '#ec4899', light: '#fbcfe8' },
+  { main: '#6366f1', light: '#a5b4fc' }
 ]
 
 function initMonthChart() {
   if (!monthChartRef.value) return
   if (monthChart.value) monthChart.value.dispose()
 
-  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas' })
+  const chartHeight = viewMode.value === 'total' ? 435 : 335
+  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas', height: chartHeight })
+
+  // 动态提取所有有订单的专区
+  const zones = [...new Set(props.monthTrend.flatMap(m =>
+    Object.keys(m).filter(k => k !== 'label' && k !== 'count' && m[k] > 0)
+  ))]
+
+  canToggle.value = viewMode.value === 'zone'
+  toggleState.value = false
+  legendData.value = []
 
   if (viewMode.value === 'total') {
     // 简单柱状图模式
@@ -112,7 +126,7 @@ function initMonthChart() {
           name: '订单金额',
           type: 'bar',
           data: props.monthTrend.map(x => {
-            const total = props.monthTrendZones.reduce((sum, zone) => sum + (x[zone] || 0), 0)
+            const total = zones.reduce((sum, zone) => sum + (x[zone] || 0), 0)
             return Number(total.toFixed(2))
           }),
           barWidth: '45%',
@@ -155,7 +169,6 @@ function initMonthChart() {
     chart.setOption(option)
   } else {
     // 叠加柱状图模式
-    const zones = props.monthTrendZones
     const series = zones.map((zone, index) => ({
       name: zone,
       type: 'bar',
@@ -197,23 +210,12 @@ function initMonthChart() {
         }
       },
       legend: {
-        bottom: 8,
-        left: 'center',
-        itemWidth: 10,
-        itemHeight: 10,
-        itemGap: 12,
-        textStyle: {
-          color: '#6b7280',
-          fontSize: 12,
-          width: 90
-        },
-        icon: 'roundRect',
-        width: '75%'
+        show: false
       },
       grid: {
         left: '3%',
         right: '4%',
-        bottom: '20%',
+        bottom: '3%',
         top: '18%',
         containLabel: true
       },
@@ -241,6 +243,13 @@ function initMonthChart() {
       series
     }
     chart.setOption(option)
+
+    // 更新自定义图例数据
+    legendData.value = zones.map((zone, index) => ({
+      name: zone,
+      visible: true,
+      color: zoneColors[index % zoneColors.length].main
+    }))
   }
 
   chart.on('click', params => {
@@ -259,6 +268,39 @@ function initMonthChart() {
   })
 
   monthChart.value = chart
+}
+
+function toggleLegends() {
+  const chart = monthChart.value
+  if (!chart) return
+
+  if (!toggleState.value) {
+    legendData.value.forEach(item => {
+      item.visible = false
+      chart.dispatchAction({ type: 'legendUnSelect', name: item.name })
+    })
+    toggleState.value = true
+  } else {
+    legendData.value.forEach(item => {
+      item.visible = true
+    })
+    chart.dispatchAction({ type: 'legendAllSelect' })
+    toggleState.value = false
+  }
+}
+
+function toggleSeries(name) {
+  const chart = monthChart.value
+  if (!chart) return
+
+  const item = legendData.value.find(z => z.name === name)
+  if (!item) return
+
+  item.visible = !item.visible
+  chart.dispatchAction({
+    type: item.visible ? 'legendSelect' : 'legendUnSelect',
+    name
+  })
 }
 
 function initWeekChart() {
@@ -430,25 +472,44 @@ function handleResize() {
     <article class="panel">
       <div class="panel-head">
         <h2>近半年订单趋势</h2>
-        <div class="seg">
+        <div class="head-right">
           <button
-            :class="{ active: viewMode === 'total' }"
-            @click="viewMode = 'total'"
-          >按总额</button>
-          <button
-            :class="{ active: viewMode === 'zone' }"
-            @click="viewMode = 'zone'"
-          >按专区</button>
+            v-if="canToggle"
+            class="toggle-btn"
+            @click="toggleLegends"
+          >{{ toggleState ? '全选' : '取消全选' }}</button>
+          <div class="seg">
+            <button
+              :class="{ active: viewMode === 'total' }"
+              @click="viewMode = 'total'"
+            >按总额</button>
+            <button
+              :class="{ active: viewMode === 'zone' }"
+              @click="viewMode = 'zone'"
+            >按专区</button>
+          </div>
         </div>
       </div>
-      <div ref="monthChartRef" class="chart"></div>
+      <div ref="monthChartRef" :class="viewMode === 'total' ? 'total-chart' : 'zone-chart'"></div>
+      <div v-if="viewMode === 'zone'" class="custom-legend">
+        <div
+          v-for="(zone, index) in legendData"
+          :key="zone.name"
+          class="legend-item"
+          :class="{ inactive: !zone.visible }"
+          @click="toggleSeries(zone.name)"
+        >
+          <span class="legend-icon" :style="{ background: zone.visible ? zoneColors[index % zoneColors.length].main : '#d1d5db' }"></span>
+          <span class="legend-text">{{ zone.name }}</span>
+        </div>
+      </div>
     </article>
     <article class="panel">
       <div class="panel-head">
         <h2>近一周趋势</h2>
         <span class="note">日维度</span>
       </div>
-      <div ref="weekChartRef" class="chart"></div>
+      <div ref="weekChartRef" class="week-chart"></div>
     </article>
   </div>
 </template>
@@ -467,6 +528,8 @@ function handleResize() {
   padding: 18px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  height: 100%;
 }
 
 .panel-head {
@@ -520,9 +583,96 @@ h2 {
   box-shadow: 0 6px 15px rgba(215,25,32,.18);
 }
 
-.chart {
+.head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-btn {
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #ef4444;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.toggle-btn:hover {
+  background: #fef2f2;
+}
+
+.total-chart {
   width: 100%;
-  flex: 1;
-  min-height: 260px;
+  height: calc(90% - 14px);
+}
+
+.zone-chart {
+  width: 100%;
+  //height: calc(100% - 102px);
+}
+
+.week-chart {
+  width: 100%;
+  height: calc(100% - 14px);
+}
+
+.custom-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px 0;
+  height: 90px;
+  overflow-y: auto;
+  padding: 4px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--line);
+  margin-top: 8px;
+}
+
+.custom-legend::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-legend::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.custom-legend::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 25%;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-sizing: border-box;
+}
+
+.legend-item.inactive {
+  opacity: 0.4;
+}
+
+.legend-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legend-text {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

@@ -32,6 +32,13 @@ const cards = [
     color: '#2563eb'
   },
   {
+    label: '月交易金额',
+    value: props.kpis.curMonthAmount || 0,
+    format: 'money',
+    hint: '本月累计金额',
+    color: '#1d4ed8'
+  },
+  {
     label: '本周交易金额',
     value: props.kpis.weekAmount || 0,
     format: 'money',
@@ -65,6 +72,13 @@ const cards = [
     format: 'number',
     hint: `笔均 ¥${Math.round(props.kpis.avgAmount || 0).toLocaleString('zh-CN')}`,
     color: '#2563eb'
+  },
+  {
+    label: '月订单数',
+    value: props.kpis.curMonthOrders || 0,
+    format: 'number',
+    hint: '本月累计笔数',
+    color: '#1d4ed8'
   },
   {
     label: '本周订单数',
@@ -163,7 +177,7 @@ onMounted(() => {
 <style scoped>
 .kpis {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
   margin-top: 0;
   align-items: stretch;

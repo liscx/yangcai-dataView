@@ -48,6 +48,7 @@ onMounted(() => {
         <ProcurementFocus
           :buyer-rank="DATA.buyerRank"
           :kpis="DATA.kpis"
+          :month-trend="DATA.monthTrend"
         />
       </div>
 
@@ -70,6 +71,7 @@ onMounted(() => {
         <SupplierContribution
           :supplier-rank="DATA.supplierRank"
           :kpis="DATA.kpis"
+          :zone-rank="DATA.zoneRank"
         />
       </div>
     </section>

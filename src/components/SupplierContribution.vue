@@ -1,17 +1,20 @@
 <script setup>
 const props = defineProps({
   supplierRank: Array,
-  kpis: Object
+  kpis: Object,
+  zoneRank: Array
 })
 </script>
 
 <template>
   <article class="panel">
     <div class="panel-head">
-      <h2>占位2</h2>
-      <span class="note">供应商侧</span>
+      <h2>已上量专区</h2>
+      <span class="note">{{ zoneRank.length }} 个</span>
     </div>
-    <div class="placeholder"></div>
+    <div class="tags">
+      <span v-for="zone in zoneRank" :key="zone.name" class="tag" :title="zone.name">{{ zone.name }}</span>
+    </div>
   </article>
 </template>
 
@@ -30,6 +33,7 @@ const props = defineProps({
   align-items: baseline;
   gap: 12px;
   margin-bottom: 14px;
+  flex-shrink: 0;
 }
 
 h2 {
@@ -45,7 +49,42 @@ h2 {
   font-size: 12px;
 }
 
-.placeholder {
-  min-height: 120px;
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  max-height: 190px;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 10px;
+}
+
+.tags::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tags::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.tags::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 12px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 </style>

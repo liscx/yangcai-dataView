@@ -16,7 +16,7 @@ const sortedData = computed(() => {
   } else {
     data.sort((a, b) => b.count - a.count)
   }
-  return data
+  return data.slice(0, 10)
 })
 
 const maxValue = computed(() => {
@@ -38,8 +38,7 @@ const avgPerOrder = computed(() => Math.round(zoneTotal.value / Math.max(1, orde
 const insights = computed(() => [
   ['TOP1 占比', Math.round(sortedData.value[0].amount / Math.max(1, zoneTotal.value) * 100) + '%'],
   ['TOP3 占比', top3Share.value + '%'],
-  ['活跃专区', props.zoneRank.length + ' 个'],
-  ['笔均金额', '¥' + avgPerOrder.value.toLocaleString('zh-CN')]
+  ['活跃专区', props.zoneRank.length + ' 个']
 ])
 
 const medals = ['🥇', '🥈', '🥉']
@@ -110,7 +109,7 @@ onMounted(() => {
 <template>
   <article ref="containerRef" class="panel">
     <div class="panel-head">
-      <h2>专区排行</h2>
+      <h2>专区top10</h2>
       <div class="seg">
         <button
           :class="{ active: mode === 'amount' }"
@@ -155,7 +154,7 @@ onMounted(() => {
     <!-- 完整排行条 -->
     <div class="bars">
       <div
-        v-for="item in sortedData"
+        v-for="item in sortedData.slice(3)"
         :key="item.name"
         class="bar-row"
       >
@@ -315,15 +314,13 @@ h2 {
 
 .bar-row {
   display: grid;
-  grid-template-columns: minmax(100px, 1fr) 2fr 72px 36px;
+  grid-template-columns: minmax(120px, 1.2fr) 1.5fr 72px 36px;
   gap: 8px;
   align-items: center;
   font-size: 13px;
 }
 
 .bar-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--ink);
   font-size: 12px;
@@ -358,7 +355,7 @@ h2 {
 
 .insights {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-top: 16px;
   padding-top: 12px;
