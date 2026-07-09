@@ -39,6 +39,7 @@ if len(orders) > 0:
     cur_month_start = max_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     cur_month_orders = orders[(orders['日期'] >= cur_month_start) & (orders['日期'] <= max_date)]
     cur_month_amount = round(cur_month_orders['订单金额（元）'].sum(), 2)
+    cur_month_count = len(cur_month_orders)
 
     # 上月同期截止日（处理月份跨年和月末天数问题）
     prev_month_end_day = max_date.day
@@ -66,6 +67,7 @@ else:
     today_amount = 0
     today_count = 0
     cur_month_amount = 0
+    cur_month_count = 0
     prev_month_amount = 0
     mom_rate = None
 
@@ -171,7 +173,8 @@ def amount_band(amount):
     if amount < 1000: return '1千以下'
     elif amount < 5000: return '1千-5千'
     elif amount < 10000: return '5千-1万'
-    elif amount < 50000: return '1万-5万'
+    elif amount < 30000: return '1万-3万'
+    elif amount < 50000: return '3万-5万'
     else: return '5万以上'
 
 orders['金额区间'] = orders['订单金额（元）'].apply(amount_band)
@@ -180,7 +183,7 @@ amount_bands = orders.groupby('金额区间').agg(
     amount=('订单金额（元）', 'sum')
 ).reset_index()
 amount_bands['amount'] = amount_bands['amount'].round(2)
-band_order = ['1千以下', '1千-5千', '5千-1万', '1万-5万', '5万以上']
+band_order = ['1千以下', '1千-5千', '5千-1万', '1万-3万', '3万-5万', '5万以上']
 amount_bands['sort_key'] = amount_bands['金额区间'].apply(lambda x: band_order.index(x))
 amount_bands = amount_bands.sort_values('sort_key')
 amount_bands_list = amount_bands.rename(columns={'金额区间': 'name'}).drop(columns=['sort_key']).to_dict('records')
@@ -244,6 +247,7 @@ result = {
         "buyerCount": buyer_count,
         "supplierCount": supplier_count,
         "curMonthAmount": cur_month_amount,
+        "curMonthOrders": cur_month_count,
         "prevMonthAmount": prev_month_amount,
         "momRate": mom_rate,
         "buyerTop10Share": buyer_top10_share,

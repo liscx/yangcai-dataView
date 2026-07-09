@@ -20,6 +20,10 @@ async function captureScreenshot() {
   capturing.value = true
 
   try {
+    // 截图前缩小 box-shadow，避免遮挡
+    document.documentElement.style.setProperty('--shadow', '0 2px 6px rgba(26, 35, 50, 0.06)')
+    document.documentElement.style.setProperty('--shadow-hover', '0 4px 10px rgba(26, 35, 50, 0.08)')
+
     const dataUrl = await domToJpeg(document.body, {
       backgroundColor: '#f8fafc',
       scale: 2,
@@ -32,6 +36,9 @@ async function captureScreenshot() {
   } catch (e) {
     console.error('截图失败:', e)
   } finally {
+    // 恢复 box-shadow
+    document.documentElement.style.setProperty('--shadow', '0 4px 24px rgba(26, 35, 50, 0.08)')
+    document.documentElement.style.setProperty('--shadow-hover', '0 8px 32px rgba(26, 35, 50, 0.12)')
     capturing.value = false
   }
 }
@@ -149,11 +156,14 @@ h1 {
   height: 32px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.9);
   color: var(--muted);
   cursor: pointer;
   transition: all .2s ease;
   flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
 
 .screenshot-btn:hover {
