@@ -28,28 +28,28 @@ const cards = [
     label: '总交易金额',
     value: props.kpis.totalAmount || 0,
     format: 'money',
-    hint: '累计总金额',
+    hint: `累计 ${formatExact(props.kpis.totalAmount || 0)}`,
     color: '#2563eb'
   },
   {
     label: '月交易金额',
     value: props.kpis.curMonthAmount || 0,
     format: 'money',
-    hint: '本月累计金额',
+    hint: `本月 ${formatExact(props.kpis.curMonthAmount || 0)}`,
     color: '#1d4ed8'
   },
   {
     label: '本周交易金额',
     value: props.kpis.weekAmount || 0,
     format: 'money',
-    hint: `本周 ${props.kpis.weekOrders || 0} 笔`,
+    hint: `本周 ${props.kpis.weekOrders || 0} 笔 · ${formatExact(props.kpis.weekAmount || 0)}`,
     color: '#0d9488'
   },
   {
     label: '今日交易金额',
     value: props.kpis.todayAmount || 0,
     format: 'money',
-    hint: `今日 ${props.kpis.todayOrders || 0} 笔`,
+    hint: `今日 ${props.kpis.todayOrders || 0} 笔 · ${formatExact(props.kpis.todayAmount || 0)}`,
     color: '#b7791f'
   },
   {
@@ -63,14 +63,14 @@ const cards = [
     label: '月环比同期',
     value: 0,
     format: 'mom',
-    hint: `本月 ¥${((props.kpis.curMonthAmount || 0) / 10000).toFixed(1)}万 vs 上月同期 ¥${((props.kpis.prevMonthAmount || 0) / 10000).toFixed(1)}万`,
+    hint: `本月 ${formatExact(props.kpis.curMonthAmount || 0)} vs 上月同期 ${formatExact(props.kpis.prevMonthAmount || 0)}`,
     color: momRate >= 0 ? '#16a34a' : '#e11d48'
   },
   {
     label: '总订单数',
     value: props.kpis.totalOrders || 0,
     format: 'number',
-    hint: `笔均 ¥${Math.round(props.kpis.avgAmount || 0).toLocaleString('zh-CN')}`,
+    hint: `笔均 ${formatExact(props.kpis.avgAmount || 0)}`,
     color: '#2563eb'
   },
   {
@@ -112,11 +112,16 @@ const cards = [
 
 function formatValue(value, format) {
   if (format === 'money') {
-    if (value >= 10000) return '¥' + (value / 10000).toFixed(1) + '万'
-    return '¥' + Math.round(value).toLocaleString('zh-CN')
+    if (value >= 10000) return '¥' + (Math.floor(value / 10000 * 100) / 100).toFixed(2) + '万'
+    return '¥' + Math.floor(value).toLocaleString('zh-CN')
   }
   if (format === 'mom') return momLabel
   return Math.round(value).toLocaleString('zh-CN')
+}
+
+function formatExact(value) {
+  if (value >= 10000) return '¥' + (Math.floor(value / 10000 * 100) / 100).toFixed(2) + '万'
+  return '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 onMounted(() => {

@@ -50,15 +50,13 @@ const medalColors = [
 
 function formatValue(item) {
   if (mode.value === 'amount') {
-    if (item.amount >= 10000) return '¥' + (item.amount / 10000).toFixed(1) + '万'
-    return '¥' + Math.round(item.amount).toLocaleString('zh-CN')
+    return '¥' + (Math.floor(item.amount / 10000 * 100) / 100).toFixed(2) + '万'
   }
   return item.count + ' 笔'
 }
 
 function formatCompact(n) {
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
-  return Math.round(n).toLocaleString('zh-CN')
+  return (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
 }
 
 function getBarWidth(item) {

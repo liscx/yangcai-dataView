@@ -21,8 +21,7 @@ const localAmountPct = Math.round(local.amount / totalAmount * 100)
 const ecommerceAmountPct = Math.round(ecommerce.amount / totalAmount * 100)
 
 function fmtMoney(n) {
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
-  return Math.round(n).toLocaleString('zh-CN')
+  return (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
 }
 
 function fmtFull(n) {

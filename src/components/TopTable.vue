@@ -21,8 +21,7 @@ const sortedData = computed(() => {
 })
 
 function formatMoney(n) {
-  if (n >= 10000) return '¥' + (n / 10000).toFixed(1) + '万'
-  return '¥' + Math.round(n).toLocaleString('zh-CN')
+  return '¥' + (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
 }
 
 function getRankClass(index) {

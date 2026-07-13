@@ -58,6 +58,7 @@ onMounted(() => {
           :month-trend="DATA.monthTrend"
           :month-trend-zones="DATA.monthTrendZones"
           :week-trend="DATA.weekTrend"
+          :week-trend-zones="DATA.weekTrendZones"
         />
       </div>
 

@@ -7,7 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 const props = defineProps({
   monthTrend: Array,
   monthTrendZones: Array,
-  weekTrend: Array
+  weekTrend: Array,
+  weekTrendZones: Array
 })
 
 const monthChartRef = ref(null)
@@ -19,6 +20,20 @@ const viewMode = ref('total') // 'total' | 'zone'
 const canToggle = ref(false)
 const toggleState = ref(false) // false = 全选状态, true = 有取消状态
 const legendData = ref([])
+const weekViewMode = ref('total') // 'total' | 'zone'
+const weekCanToggle = ref(false)
+const weekToggleState = ref(false)
+const weekLegendData = ref([])
+
+// 金额格式化：万为单位，2位小数，截断不四舍五入（用于KPI大数字）
+function fmtMoney(n) {
+  return (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
+}
+
+// 金额格式化：显示实际值，带千分位（用于图表tooltip）
+function fmtActual(n) {
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
 
 // 专区颜色 - 柔和专业的配色
 const zoneColors = [
@@ -64,7 +79,7 @@ function initMonthChart() {
           let html = `<strong>${params[0].axisValue}</strong><br/>`
           params.forEach(p => {
             const val = p.seriesName === '订单金额'
-              ? '¥' + (p.value >= 10000 ? (p.value / 10000).toFixed(1) + '万' : Math.round(p.value).toLocaleString('zh-CN'))
+              ? '¥' + fmtActual(p.value)
               : p.value + ' 单'
             html += `${p.marker} ${p.seriesName}：${val}<br/>`
           })
@@ -106,8 +121,7 @@ function initMonthChart() {
             color: '#9ca3af',
             fontSize: 11,
             formatter: v => {
-              if (v >= 10000) return (v / 10000).toFixed(0) + '万'
-              return v
+              return fmtMoney(v)
             }
           }
         },
@@ -201,11 +215,11 @@ function initMonthChart() {
           params.forEach(p => {
             if (p.value > 0) {
               total += p.value
-              const val = p.value >= 10000 ? (p.value / 10000).toFixed(1) + '万' : Math.round(p.value).toLocaleString('zh-CN')
+              const val = fmtActual(p.value)
               html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${zoneColors[p.seriesIndex % zoneColors.length].main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
             }
           })
-          html += `</div><div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">合计：<strong>¥${total >= 10000 ? (total / 10000).toFixed(1) + '万' : Math.round(total).toLocaleString('zh-CN')}</strong></div>`
+          html += `</div><div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">合计：<strong>¥${fmtActual(total)}</strong></div>`
           return html
         }
       },
@@ -303,58 +317,229 @@ function toggleSeries(name) {
   })
 }
 
+function toggleWeekLegends() {
+  const chart = weekChart.value
+  if (!chart) return
+
+  if (!weekToggleState.value) {
+    weekLegendData.value.forEach(item => {
+      item.visible = false
+      chart.dispatchAction({ type: 'legendUnSelect', name: item.name })
+    })
+    weekToggleState.value = true
+  } else {
+    weekLegendData.value.forEach(item => {
+      item.visible = true
+    })
+    chart.dispatchAction({ type: 'legendAllSelect' })
+    weekToggleState.value = false
+  }
+}
+
+function toggleWeekSeries(name) {
+  const chart = weekChart.value
+  if (!chart) return
+
+  const item = weekLegendData.value.find(z => z.name === name)
+  if (!item) return
+
+  item.visible = !item.visible
+  chart.dispatchAction({
+    type: item.visible ? 'legendSelect' : 'legendUnSelect',
+    name
+  })
+}
+
 function initWeekChart() {
   if (!weekChartRef.value) return
+  if (weekChart.value) weekChart.value.dispose()
 
-  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas' })
+  const chartHeight = weekViewMode.value === 'total' ? 435 : 335
+  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas', height: chartHeight })
 
-  const option = {
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(255, 255, 255, 0.96)',
-      borderColor: '#e5e7eb',
-      borderWidth: 1,
-      textStyle: { color: '#1a2332', fontSize: 13 },
-      axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(37, 99, 235, 0.06)' } },
-      formatter: params => {
-        let html = `<strong>${params[0].axisValue}</strong><br/>`
-        params.forEach(p => {
-          const val = p.seriesName === '订单金额'
-            ? '¥' + (p.value >= 10000 ? (p.value / 10000).toFixed(1) + '万' : Math.round(p.value).toLocaleString('zh-CN'))
-            : p.value + ' 单'
-          html += `${p.marker} ${p.seriesName}：${val}<br/>`
-        })
-        return html
+  // 动态提取所有有订单的专区
+  const zones = [...new Set(props.weekTrend.flatMap(m =>
+    Object.keys(m).filter(k => k !== 'label' && k !== 'count' && k !== 'amount' && m[k] > 0)
+  ))]
+
+  weekCanToggle.value = weekViewMode.value === 'zone'
+  weekToggleState.value = false
+  weekLegendData.value = []
+
+  if (weekViewMode.value === 'total') {
+    // 简单柱状图模式
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        textStyle: { color: '#1a2332', fontSize: 13 },
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(37, 99, 235, 0.06)' } },
+        formatter: params => {
+          let html = `<strong>${params[0].axisValue}</strong><br/>`
+          params.forEach(p => {
+            const val = p.seriesName === '订单金额'
+              ? '¥' + fmtActual(p.value)
+              : p.value + ' 单'
+            html += `${p.marker} ${p.seriesName}：${val}<br/>`
+          })
+          return html
+        }
+      },
+      legend: {
+        bottom: 8,
+        left: 'center',
+        itemWidth: 8,
+        itemHeight: 8,
+        itemGap: 16,
+        textStyle: { color: '#6b7280', fontSize: 11 },
+        icon: 'roundRect'
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '10%',
+        top: '18%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: props.weekTrend.map(x => x.label),
+        axisLine: { lineStyle: { color: '#e5e7eb' } },
+        axisTick: { show: false },
+        axisLabel: { color: '#6b7280', fontSize: 12 }
+      },
+      yAxis: [
+        {
+          type: 'value',
+          name: '金额',
+          nameTextStyle: { color: '#9ca3af', fontSize: 11, padding: [0, 40, 0, 0] },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { lineStyle: { color: '#f3f4f6' } },
+          axisLabel: {
+            color: '#9ca3af',
+            fontSize: 11,
+            formatter: v => {
+              return fmtMoney(v)
+            }
+          }
+        },
+        {
+          type: 'value',
+          name: '订单数',
+          nameTextStyle: { color: '#9ca3af', fontSize: 11 },
+          axisLine: { show: false },
+          axisTick: { show: false },
+          splitLine: { show: false },
+          axisLabel: { color: '#9ca3af', fontSize: 11 }
+        }
+      ],
+      series: [
+        {
+          name: '订单金额',
+          type: 'bar',
+          data: props.weekTrend.map(x => Number(x.amount.toFixed(2))),
+          barWidth: '40%',
+          barCategoryGap: '30%',
+          itemStyle: {
+            borderRadius: [6, 6, 0, 0],
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: '#60a5fa' },
+              { offset: 1, color: '#3b82f6' }
+            ])
+          },
+          emphasis: {
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#93c5fd' },
+                { offset: 1, color: '#2563eb' }
+              ])
+            }
+          }
+        },
+        {
+          name: '订单数',
+          type: 'line',
+          yAxisIndex: 1,
+          data: props.weekTrend.map(x => x.count),
+          smooth: true,
+          symbol: 'circle',
+          symbolSize: 7,
+          lineStyle: { color: '#f59e0b', width: 2.5 },
+          itemStyle: { color: '#f59e0b', borderWidth: 2, borderColor: '#fff' },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(245, 158, 11, 0.12)' },
+              { offset: 1, color: 'rgba(245, 158, 11, 0)' }
+            ])
+          }
+        }
+      ]
+    }
+    chart.setOption(option)
+  } else {
+    // 叠加柱状图模式
+    const series = zones.map((zone, index) => ({
+      name: zone,
+      type: 'bar',
+      stack: 'total',
+      barWidth: '45%',
+      data: props.weekTrend.map(x => x[zone] || 0),
+      itemStyle: {
+        color: zoneColors[index % zoneColors.length].main,
+        borderRadius: [3, 3, 0, 0]
+      },
+      emphasis: {
+        focus: 'series',
+        itemStyle: {
+          color: zoneColors[index % zoneColors.length].light
+        }
       }
-    },
-    legend: {
-      bottom: 8,
-      left: 'center',
-      itemWidth: 8,
-      itemHeight: 8,
-      itemGap: 16,
-      textStyle: { color: '#6b7280', fontSize: 11 },
-      icon: 'roundRect'
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '10%',
-      top: '18%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: props.weekTrend.map(x => x.label),
-      axisLine: { lineStyle: { color: '#e5e7eb' } },
-      axisTick: { show: false },
-      axisLabel: { color: '#6b7280', fontSize: 12 }
-    },
-    yAxis: [
-      {
+    }))
+
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        textStyle: { color: '#1a2332', fontSize: 12 },
+        axisPointer: { type: 'shadow' },
+        formatter: params => {
+          let total = 0
+          let html = `<strong style="font-size:13px">${params[0].axisValue}</strong><div style="margin-top:6px">`
+          params.forEach(p => {
+            if (p.value > 0) {
+              total += p.value
+              const val = fmtActual(p.value)
+              html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${zoneColors[p.seriesIndex % zoneColors.length].main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
+            }
+          })
+          html += `</div><div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">合计：<strong>¥${fmtActual(total)}</strong></div>`
+          return html
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        top: '18%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: props.weekTrend.map(x => x.label),
+        axisLine: { lineStyle: { color: '#e5e7eb' } },
+        axisTick: { show: false },
+        axisLabel: { color: '#6b7280', fontSize: 12 }
+      },
+      yAxis: {
         type: 'value',
-        name: '金额',
-        nameTextStyle: { color: '#9ca3af', fontSize: 11, padding: [0, 40, 0, 0] },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { lineStyle: { color: '#f3f4f6', type: 'dashed' } },
@@ -367,51 +552,17 @@ function initWeekChart() {
           }
         }
       },
-      {
-        type: 'value',
-        name: '订单数',
-        nameTextStyle: { color: '#9ca3af', fontSize: 11 },
-        axisLine: { show: false },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        axisLabel: { color: '#9ca3af', fontSize: 11 }
-      }
-    ],
-    series: [
-      {
-        name: '订单金额',
-        type: 'bar',
-        data: props.weekTrend.map(x => Number(x.amount.toFixed(2))),
-        barWidth: '40%',
-        itemStyle: {
-          borderRadius: [6, 6, 0, 0],
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: '#60a5fa' },
-            { offset: 1, color: '#3b82f6' }
-          ])
-        }
-      },
-      {
-        name: '订单数',
-        type: 'line',
-        yAxisIndex: 1,
-        data: props.weekTrend.map(x => x.count),
-        smooth: true,
-        symbol: 'circle',
-        symbolSize: 7,
-        lineStyle: { color: '#f59e0b', width: 2.5 },
-        itemStyle: { color: '#f59e0b', borderWidth: 2, borderColor: '#fff' },
-        areaStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(245, 158, 11, 0.12)' },
-            { offset: 1, color: 'rgba(245, 158, 11, 0)' }
-          ])
-        }
-      }
-    ]
-  }
+      series
+    }
+    chart.setOption(option)
 
-  chart.setOption(option)
+    // 更新自定义图例数据
+    weekLegendData.value = zones.map((zone, index) => ({
+      name: zone,
+      visible: true,
+      color: zoneColors[index % zoneColors.length].main
+    }))
+  }
 
   chart.on('click', params => {
     chart.dispatchAction({
@@ -433,6 +584,10 @@ function initWeekChart() {
 
 watch(viewMode, () => {
   initMonthChart()
+})
+
+watch(weekViewMode, () => {
+  initWeekChart()
 })
 
 onMounted(() => {
@@ -506,10 +661,38 @@ function handleResize() {
     </article>
     <article class="panel">
       <div class="panel-head">
-        <h2>近一周趋势</h2>
-        <span class="note">日维度</span>
+        <h2>近一周订单趋势</h2>
+        <div class="head-right">
+          <button
+            v-if="weekCanToggle"
+            class="toggle-btn"
+            @click="toggleWeekLegends"
+          >{{ weekToggleState ? '全选' : '取消全选' }}</button>
+          <div class="seg">
+            <button
+              :class="{ active: weekViewMode === 'total' }"
+              @click="weekViewMode = 'total'"
+            >按总额</button>
+            <button
+              :class="{ active: weekViewMode === 'zone' }"
+              @click="weekViewMode = 'zone'"
+            >按专区</button>
+          </div>
+        </div>
       </div>
-      <div ref="weekChartRef" class="week-chart"></div>
+      <div ref="weekChartRef" :class="weekViewMode === 'total' ? 'total-chart' : 'zone-chart'"></div>
+      <div v-if="weekViewMode === 'zone'" class="custom-legend">
+        <div
+          v-for="(zone, index) in weekLegendData"
+          :key="zone.name"
+          class="legend-item"
+          :class="{ inactive: !zone.visible }"
+          @click="toggleWeekSeries(zone.name)"
+        >
+          <span class="legend-icon" :style="{ background: zone.visible ? zoneColors[index % zoneColors.length].main : '#d1d5db' }"></span>
+          <span class="legend-text">{{ zone.name }}</span>
+        </div>
+      </div>
     </article>
   </div>
 </template>
@@ -612,7 +795,7 @@ h2 {
 
 .zone-chart {
   width: 100%;
-  //height: calc(100% - 102px);
+  /* height: calc(100% - 102px); */
 }
 
 .week-chart {

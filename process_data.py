@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import json
 from datetime import datetime
@@ -142,25 +143,44 @@ else:
     month_trend_list = []
     month_trend_zones = []
 
-# ============ 近一周趋势 ============
+# ============ 近一周趋势（按专区拆分） ============
 if len(orders) > 0:
     max_date = orders['日期'].max()
     week_start = max_date - pd.Timedelta(days=6)
     week_data = orders[orders['日期'] >= week_start].copy()
     week_data['日期标签'] = week_data['日期'].dt.month.astype(str) + '/' + week_data['日期'].dt.day.astype(str)
-    week_trend = week_data.groupby('日期标签').agg(
-        count=('订单号', 'count'),
-        amount=('订单金额（元）', 'sum')
+    week_data['专区分组'] = week_data['专区名称']
+
+    # 按日期+专区汇总
+    week_zone = week_data.groupby(['日期标签', '专区分组']).agg(
+        amount=('订单金额（元）', 'sum'),
+        count=('订单号', 'count')
     ).reset_index()
-    week_trend['amount'] = week_trend['amount'].round(2)
+    week_zone['amount'] = week_zone['amount'].round(2)
+
+    # 获取所有专区（按金额排序，复用月度趋势的专区列表）
+    week_zones_sorted = week_zone.groupby('专区分组')['amount'].sum().sort_values(ascending=False).index.tolist()
+
     # 补全7天
     all_days = pd.date_range(week_start, max_date)
     all_days_labels = [f"{d.month}/{d.day}" for d in all_days]
-    week_trend = week_trend.set_index('日期标签').reindex(all_days_labels, fill_value=0).reset_index()
-    week_trend.columns = ['label', 'count', 'amount']
-    week_trend_list = week_trend.to_dict('records')
+
+    # 构建输出格式
+    week_trend_list = []
+    for day_label in all_days_labels:
+        day_zone_data = week_zone[week_zone['日期标签'] == day_label]
+        zone_dict = dict(zip(day_zone_data['专区分组'], day_zone_data['amount']))
+        item = {'label': day_label}
+        item['count'] = int(day_zone_data['count'].sum())
+        item['amount'] = round(day_zone_data['amount'].sum(), 2)
+        for zone in week_zones_sorted:
+            item[zone] = zone_dict.get(zone, 0)
+        week_trend_list.append(item)
+
+    week_trend_zones = week_zones_sorted
 else:
     week_trend_list = []
+    week_trend_zones = []
 
 # ============ 订单状态分布 ============
 status_rank = orders.groupby('订单状态').agg(
@@ -261,6 +281,7 @@ result = {
     "monthTrend": month_trend_list,
     "monthTrendZones": month_trend_zones,
     "weekTrend": week_trend_list,
+    "weekTrendZones": week_trend_zones,
     "statusRank": status_rank_list,
     "amountBands": amount_bands_list,
     "buyerRank": buyer_rank_list,
