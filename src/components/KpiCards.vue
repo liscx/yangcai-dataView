@@ -120,7 +120,6 @@ function formatValue(value, format) {
 }
 
 function formatExact(value) {
-  if (value >= 10000) return '¥' + (Math.floor(value / 10000 * 100) / 100).toFixed(2) + '万'
   return '¥' + value.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
