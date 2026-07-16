@@ -42,14 +42,14 @@ const cards = [
     label: '本周交易金额',
     value: props.kpis.weekAmount || 0,
     format: 'money',
-    hint: `本周 ${props.kpis.weekOrders || 0} 笔 · ${formatExact(props.kpis.weekAmount || 0)}`,
+    hint: `本周 ${formatExact(props.kpis.weekAmount || 0)}`,
     color: '#0d9488'
   },
   {
     label: '今日交易金额',
     value: props.kpis.todayAmount || 0,
     format: 'money',
-    hint: `今日 ${props.kpis.todayOrders || 0} 笔 · ${formatExact(props.kpis.todayAmount || 0)}`,
+    hint: `今日 ${formatExact(props.kpis.todayAmount || 0)}`,
     color: '#b7791f'
   },
   {
@@ -63,7 +63,7 @@ const cards = [
     label: '月环比同期',
     value: 0,
     format: 'mom',
-    hint: `本月 ${formatExact(props.kpis.curMonthAmount || 0)} vs 上月同期 ${formatExact(props.kpis.prevMonthAmount || 0)}`,
+    hint: `上月同期 ${formatExact(props.kpis.prevMonthAmount || 0)}`,
     color: momRate >= 0 ? '#16a34a' : '#e11d48'
   },
   {
@@ -226,10 +226,10 @@ onMounted(() => {
 .hint {
   margin-top: 2px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: 0.7;
+  opacity: 1;
 }
 </style>

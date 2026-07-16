@@ -35,7 +35,8 @@ body {
   background-image:
     radial-gradient(ellipse at 20% 50%, rgba(37, 99, 235, 0.04), transparent 50%),
     radial-gradient(ellipse at 80% 20%, rgba(13, 148, 136, 0.04), transparent 50%);
-  min-width: 1180px;
+  min-width: 1920px;
+  zoom: var(--page-zoom, 1);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
