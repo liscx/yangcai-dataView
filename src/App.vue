@@ -108,10 +108,10 @@ onMounted(() => {
 .grid {
   display: grid;
   grid-template-columns: 1.16fr 1.7fr .98fr;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 16px;
   margin-top: 16px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .column-stack {
@@ -153,20 +153,4 @@ onMounted(() => {
   margin-top: 16px;
 }
 
-/* 响应式：移动端隐藏（保持原设计的 min-width） */
-@media (max-width: 1179px) {
-  .shell {
-    display: none;
-  }
-
-  body::after {
-    content: '请使用 1180px 以上宽度访问';
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-size: 18px;
-    color: var(--muted);
-  }
-}
 </style>

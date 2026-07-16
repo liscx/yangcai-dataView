@@ -53,8 +53,7 @@ function initMonthChart() {
   if (!monthChartRef.value) return
   if (monthChart.value) monthChart.value.dispose()
 
-  const chartHeight = viewMode.value === 'total' ? 435 : 335
-  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas', height: chartHeight })
+  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas' })
 
   // 动态提取所有有订单的专区
   const zones = [...new Set(props.monthTrend.flatMap(m =>
@@ -354,8 +353,7 @@ function initWeekChart() {
   if (!weekChartRef.value) return
   if (weekChart.value) weekChart.value.dispose()
 
-  const chartHeight = weekViewMode.value === 'total' ? 435 : 335
-  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas', height: chartHeight })
+  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas' })
 
   // 动态提取所有有订单的专区
   const zones = [...new Set(props.weekTrend.flatMap(m =>
@@ -661,7 +659,7 @@ function handleResize() {
     </article>
     <article class="panel">
       <div class="panel-head">
-        <h2>近一周订单趋势</h2>
+        <h2>近7天订单趋势</h2>
         <div class="head-right">
           <button
             v-if="weekCanToggle"
@@ -712,7 +710,6 @@ function handleResize() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  height: 100%;
 }
 
 .panel-head {
@@ -790,17 +787,12 @@ h2 {
 
 .total-chart {
   width: 100%;
-  height: calc(90% - 14px);
+  min-height: 400px;
 }
 
 .zone-chart {
   width: 100%;
-  /* height: calc(100% - 102px); */
-}
-
-.week-chart {
-  width: 100%;
-  height: calc(100% - 14px);
+  min-height: 320px;
 }
 
 .custom-legend {
