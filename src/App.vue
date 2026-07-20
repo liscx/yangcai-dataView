@@ -21,6 +21,12 @@ const password = ref('')
 const errorMsg = ref('')
 const PASS = 'ygyc@2026'
 const authed = ref(false)
+const scaleRatio = ref(window.innerWidth / 1920)
+
+function updateScale() {
+  scaleRatio.value = window.innerWidth / 1920
+}
+
 let clickCount = 0
 let clickTimer = null
 
@@ -75,10 +81,17 @@ watch(authed, val => {
 
 onMounted(() => {
   ScrollTrigger.refresh()
+  window.addEventListener('resize', updateScale)
 })
 
 onUnmounted(() => {
   unbindActivity()
+  window.removeEventListener('resize', updateScale)
+})
+
+onUnmounted(() => {
+  unbindActivity()
+  window.removeEventListener('resize', updateScale)
 })
 </script>
 
@@ -102,6 +115,7 @@ onUnmounted(() => {
     </div>
   </div>
 
+  <div class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
   <main ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- Hero + KPI 合并行 -->
     <div class="hero-kpi-row">
@@ -174,6 +188,7 @@ onUnmounted(() => {
     <!-- 底部 -->
     <DashboardFooter />
   </main>
+  </div>
 </template>
 
 <style scoped>
@@ -289,16 +304,8 @@ onUnmounted(() => {
 
 .column-middle > * {
   display: grid;
-  grid-template-rows: subgrid;
+  grid-template-rows: auto 1fr;
   grid-row: 1 / -1;
-}
-
-.column-middle > * > :first-child {
-  grid-row: 1;
-}
-
-.column-middle > * > :last-child {
-  grid-row: 2 / 4;
 }
 
 .hero-kpi-row {
