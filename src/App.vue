@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -45,8 +45,40 @@ function checkPassword() {
   }
 }
 
+// 3分钟无操作自动锁定
+let lockTimer = null
+const LOCK_TIMEOUT = 3 * 60 * 1000
+
+function resetLockTimer() {
+  clearTimeout(lockTimer)
+  lockTimer = setTimeout(() => { authed.value = false }, LOCK_TIMEOUT)
+}
+
+const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll']
+function bindActivity() {
+  activityEvents.forEach(e => window.addEventListener(e, resetLockTimer, { passive: true }))
+  resetLockTimer()
+}
+function unbindActivity() {
+  clearTimeout(lockTimer)
+  activityEvents.forEach(e => window.removeEventListener(e, resetLockTimer))
+}
+
+watch(authed, val => {
+  if (val) {
+    bindActivity()
+  } else {
+    unbindActivity()
+    password.value = ''
+  }
+})
+
 onMounted(() => {
   ScrollTrigger.refresh()
+})
+
+onUnmounted(() => {
+  unbindActivity()
 })
 </script>
 
@@ -150,8 +182,8 @@ onMounted(() => {
   inset: 0;
   z-index: 9999;
   background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(70px);
+  -webkit-backdrop-filter: blur(70px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,7 +264,7 @@ onMounted(() => {
 }
 
 .shell.blurred {
-  filter: blur(6px);
+  filter: blur(16px);
 }
 
 .grid {
