@@ -17,15 +17,60 @@ import TopTable from './components/TopTable.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
 
 const appRef = ref(null)
+const password = ref('')
+const errorMsg = ref('')
+const PASS = 'ygyc@2026'
+const authed = ref(false)
+let clickCount = 0
+let clickTimer = null
+
+function onLogoClick() {
+  clickCount++
+  clearTimeout(clickTimer)
+  if (clickCount >= 4) {
+    authed.value = true
+    clickCount = 0
+    return
+  }
+  clickTimer = setTimeout(() => { clickCount = 0 }, 800)
+}
+
+function checkPassword() {
+  if (password.value === PASS) {
+    authed.value = true
+    errorMsg.value = ''
+  } else {
+    errorMsg.value = '密码错误，请重试'
+    password.value = ''
+  }
+}
 
 onMounted(() => {
-  // 初始化 ScrollTrigger
   ScrollTrigger.refresh()
 })
 </script>
 
 <template>
-  <main ref="appRef" class="shell">
+  <!-- 密码验证遮罩 -->
+  <div v-if="!authed" class="auth-overlay">
+    <div class="auth-box">
+      <div class="auth-logo" @click="onLogoClick">🌈</div>
+      <h1>阳光优采数据看板</h1>
+      <p>请输入访问密码</p>
+      <form @submit.prevent="checkPassword">
+        <input
+          v-model="password"
+          type="password"
+          placeholder="请输入密码"
+          autofocus
+        />
+        <button type="submit">进入</button>
+      </form>
+      <p v-if="errorMsg" class="err">{{ errorMsg }}</p>
+    </div>
+  </div>
+
+  <main ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- Hero + KPI 合并行 -->
     <div class="hero-kpi-row">
       <HeroSection
@@ -100,10 +145,94 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 48px 40px 40px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.auth-logo {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.auth-box h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: #1a2332;
+  font-weight: 700;
+}
+
+.auth-box p {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.auth-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-box input {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.auth-box input:focus {
+  border-color: #3b82f6;
+}
+
+.auth-box button {
+  border: 0;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ef4444, #f59e0b);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.auth-box button:hover {
+  opacity: 0.9;
+}
+
+.auth-box .err {
+  color: #ef4444;
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
 .shell {
   padding: 26px;
   max-width: 1920px;
   margin: 0 auto;
+}
+
+.shell.blurred {
+  filter: blur(6px);
 }
 
 .grid {

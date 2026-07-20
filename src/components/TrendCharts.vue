@@ -53,7 +53,7 @@ function initMonthChart() {
   if (!monthChartRef.value) return
   if (monthChart.value) monthChart.value.dispose()
 
-  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas' })
+  const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas', devicePixelRatio: window.devicePixelRatio })
 
   // 动态提取所有有订单的专区
   const zones = [...new Set(props.monthTrend.flatMap(m =>
@@ -353,7 +353,7 @@ function initWeekChart() {
   if (!weekChartRef.value) return
   if (weekChart.value) weekChart.value.dispose()
 
-  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas' })
+  const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas', devicePixelRatio: window.devicePixelRatio })
 
   // 动态提取所有有订单的专区
   const zones = [...new Set(props.weekTrend.flatMap(m =>
@@ -622,6 +622,7 @@ function handleResize() {
   monthChart.value?.resize()
   weekChart.value?.resize()
 }
+
 </script>
 
 <template>
