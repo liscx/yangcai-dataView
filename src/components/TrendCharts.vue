@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, shallowRef, watch } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, watch, nextTick } from 'vue'
 import * as echarts from 'echarts'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -581,11 +581,15 @@ function initWeekChart() {
 }
 
 watch(viewMode, () => {
-  initMonthChart()
+  nextTick(() => {
+    initMonthChart()
+  })
 })
 
 watch(weekViewMode, () => {
-  initWeekChart()
+  nextTick(() => {
+    initWeekChart()
+  })
 })
 
 onMounted(() => {
