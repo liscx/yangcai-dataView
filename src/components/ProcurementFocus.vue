@@ -1,10 +1,12 @@
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   buyerRank: Array,
   kpis: Object,
-  monthTrend: Array
+  monthTrend: Array,
+  newZones: {
+    type: Array,
+    default: () => []
+  }
 })
 
 // 彩虹配色方案
@@ -27,26 +29,6 @@ function getTagStyle(index) {
     color: color.text
   }
 }
-
-// 计算本月新专区：之前月份都为0，只有本月有订单
-const newZones = computed(() => {
-  if (!props.monthTrend || props.monthTrend.length < 2) return []
-
-  const currentMonth = props.monthTrend[props.monthTrend.length - 1]
-  const previousMonths = props.monthTrend.slice(0, -1)
-
-  // 获取所有专区名称
-  const zoneNames = Object.keys(currentMonth).filter(k => k !== 'label' && k !== 'count')
-
-  return zoneNames.filter(zone => {
-    const currentVal = currentMonth[zone] || 0
-    const hadBefore = previousMonths.some(m => (m[zone] || 0) > 0)
-    return currentVal > 0 && !hadBefore
-  }).map(zone => ({
-    name: zone,
-    amount: currentMonth[zone]
-  }))
-})
 </script>
 
 <template>

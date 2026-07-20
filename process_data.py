@@ -139,9 +139,30 @@ if len(orders) > 0:
 
     # 保存专区列表到全局数据
     month_trend_zones = zones_sorted
+
+    # ============ 本月新上量专区（基于所有历史数据） ============
+    # 获取本月有订单的专区
+    current_month_zones = orders[orders['日期'] >= cur_month_start]['专区名称'].unique()
+
+    # 获取本月之前有订单的专区（所有历史数据）
+    zones_with_history = orders[orders['日期'] < cur_month_start]['专区名称'].unique()
+
+    # 筛选新上量专区：本月有订单，但之前没有任何历史订单
+    new_zones_list = []
+    for zone_name in current_month_zones:
+        if zone_name not in zones_with_history:
+            # 获取该专区本月的订单金额
+            zone_amount = orders[(orders['专区名称'] == zone_name) & (orders['日期'] >= cur_month_start)]['订单金额（元）'].sum()
+            new_zones_list.append({
+                'name': zone_name,
+                'amount': round(zone_amount, 2)
+            })
+
+    new_zones_list.sort(key=lambda x: x['amount'], reverse=True)
 else:
     month_trend_list = []
     month_trend_zones = []
+    new_zones_list = []
 
 # ============ 近一周趋势（按专区拆分） ============
 if len(orders) > 0:
@@ -287,7 +308,8 @@ result = {
     "buyerRank": buyer_rank_list,
     "supplierRank": supplier_rank_list,
     "ecommerceSuppliers": ecommerce_suppliers_list,
-    "localSuppliers": local_suppliers_list
+    "localSuppliers": local_suppliers_list,
+    "newZones": new_zones_list
 }
 
 # 保存到 JSON

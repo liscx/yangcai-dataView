@@ -49,6 +49,7 @@ onMounted(() => {
           :buyer-rank="DATA.buyerRank"
           :kpis="DATA.kpis"
           :month-trend="DATA.monthTrend"
+          :new-zones="DATA.newZones"
         />
       </div>
 
