@@ -49,9 +49,16 @@ const zoneColors = [
   { main: '#6366f1', light: '#a5b4fc' }
 ]
 
+// 抵消 body 的 CSS zoom，否则 ECharts 鼠标坐标会错位
+function fixZoom(el) {
+  const pageZoom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--page-zoom')) || 1
+  el.style.zoom = 1 / pageZoom
+}
+
 function initMonthChart() {
   if (!monthChartRef.value) return
   if (monthChart.value) monthChart.value.dispose()
+  fixZoom(monthChartRef.value)
 
   const chart = echarts.init(monthChartRef.value, null, { renderer: 'canvas', devicePixelRatio: window.devicePixelRatio })
 
@@ -352,6 +359,7 @@ function toggleWeekSeries(name) {
 function initWeekChart() {
   if (!weekChartRef.value) return
   if (weekChart.value) weekChart.value.dispose()
+  fixZoom(weekChartRef.value)
 
   const chart = echarts.init(weekChartRef.value, null, { renderer: 'canvas', devicePixelRatio: window.devicePixelRatio })
 
@@ -592,6 +600,8 @@ watch(weekViewMode, () => {
   })
 })
 
+let resizeObserver = null
+
 onMounted(() => {
   initMonthChart()
   initWeekChart()
@@ -608,20 +618,28 @@ onMounted(() => {
     })
   }
 
-  window.addEventListener('resize', handleResize)
+  // ResizeObserver 监听容器尺寸变化，传入精确像素值
+  resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect
+      fixZoom(entry.target)
+      if (entry.target === monthChartRef.value) {
+        monthChart.value?.resize({ width: Math.floor(width), height: Math.floor(height) })
+      } else if (entry.target === weekChartRef.value) {
+        weekChart.value?.resize({ width: Math.floor(width), height: Math.floor(height) })
+      }
+    }
+  })
+  if (monthChartRef.value) resizeObserver.observe(monthChartRef.value)
+  if (weekChartRef.value) resizeObserver.observe(weekChartRef.value)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
+  resizeObserver?.disconnect()
   monthChart.value?.dispose()
   weekChart.value?.dispose()
   ScrollTrigger.getAll().forEach(t => t.kill())
 })
-
-function handleResize() {
-  monthChart.value?.resize()
-  weekChart.value?.resize()
-}
 
 </script>
 
@@ -792,12 +810,16 @@ h2 {
 
 .total-chart {
   width: 100%;
-  min-height: 400px;
+  height: 100%;
+  min-height: 300px;
+  overflow: hidden;
 }
 
 .zone-chart {
   width: 100%;
-  min-height: 320px;
+  height: 100%;
+  min-height: 260px;
+  overflow: hidden;
 }
 
 .custom-legend {
