@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -17,6 +17,7 @@ import TopTable from './components/TopTable.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
 
 const appRef = ref(null)
+const scaleRef = ref(null)
 const password = ref('')
 const errorMsg = ref('')
 const PASS = 'ygyc@2026'
@@ -25,6 +26,21 @@ const scaleRatio = ref(window.innerWidth / 1920)
 
 function updateScale() {
   scaleRatio.value = window.innerWidth / 1920
+  // 清除 body 固定高度，让 fitScaleHeight 重新计算
+  document.body.style.height = ''
+  fitScaleHeight()
+}
+
+function fitScaleHeight() {
+  if (!scaleRef.value) return
+  scaleRef.value.style.height = 'auto'
+  requestAnimationFrame(() => {
+    if (!scaleRef.value) return
+    // 视觉高度 = 内容实际高度 × scale
+    const rect = scaleRef.value.getBoundingClientRect()
+    // 让 body 的可滚动区域 = 视觉高度
+    document.body.style.height = rect.height + 'px'
+  })
 }
 
 let clickCount = 0
@@ -82,6 +98,13 @@ watch(authed, val => {
 onMounted(() => {
   ScrollTrigger.refresh()
   window.addEventListener('resize', updateScale)
+  // 内容渲染后修正高度
+  nextTick(() => fitScaleHeight())
+  // 监听内容尺寸变化
+  if (scaleRef.value) {
+    const ro = new ResizeObserver(() => fitScaleHeight())
+    ro.observe(scaleRef.value)
+  }
 })
 
 onUnmounted(() => {
@@ -115,7 +138,7 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <div class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
+  <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
   <main ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- Hero + KPI 合并行 -->
     <div class="hero-kpi-row">
@@ -304,8 +327,16 @@ onUnmounted(() => {
 
 .column-middle > * {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: subgrid;
   grid-row: 1 / -1;
+}
+
+.column-middle > * > :first-child {
+  grid-row: 1;
+}
+
+.column-middle > * > :last-child {
+  grid-row: 2 / 4;
 }
 
 .hero-kpi-row {

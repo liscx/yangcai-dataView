@@ -702,10 +702,8 @@ function handleResize() {
 
 <style scoped>
 .trend-charts {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 16px;
-  height: 100%;
 }
 
 .panel {
@@ -717,7 +715,6 @@ function handleResize() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  flex: 1;
 }
 
 .panel-head {
@@ -795,14 +792,12 @@ h2 {
 
 .total-chart {
   width: 100%;
-  flex: 1;
-  min-height: 300px;
+  min-height: 400px;
 }
 
 .zone-chart {
   width: 100%;
-  flex: 1;
-  min-height: 260px;
+  min-height: 320px;
 }
 
 .custom-legend {
