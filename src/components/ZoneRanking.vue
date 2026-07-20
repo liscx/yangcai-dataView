@@ -29,17 +29,30 @@ const maxValue = computed(() => {
 const zoneTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.amount, 0))
 const orderTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.count, 0))
 const top3Share = computed(() => {
-  const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.amount, 0)
-  return Math.round(top3 / Math.max(1, zoneTotal.value) * 100)
+  if (mode.value === 'amount') {
+    const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.amount, 0)
+    return Math.round(top3 / Math.max(1, zoneTotal.value) * 100)
+  } else {
+    const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.count, 0)
+    return Math.round(top3 / Math.max(1, orderTotal.value) * 100)
+  }
 })
 const top3 = computed(() => sortedData.value.slice(0, 3))
 const avgPerOrder = computed(() => Math.round(zoneTotal.value / Math.max(1, orderTotal.value)))
 
-const insights = computed(() => [
-  ['TOP1 占比', Math.round(sortedData.value[0].amount / Math.max(1, zoneTotal.value) * 100) + '%'],
-  ['TOP3 占比', top3Share.value + '%'],
-  ['活跃专区', props.zoneRank.length + ' 个']
-])
+const insights = computed(() => {
+  const top1Value = mode.value === 'amount'
+    ? sortedData.value[0].amount
+    : sortedData.value[0].count
+  const total = mode.value === 'amount' ? zoneTotal.value : orderTotal.value
+  const top1Share = Math.round(top1Value / Math.max(1, total) * 100)
+
+  return [
+    ['TOP1 占比', top1Share + '%'],
+    ['TOP3 占比', top3Share.value + '%'],
+    ['活跃专区', props.zoneRank.length + ' 个']
+  ]
+})
 
 const medals = ['🥇', '🥈', '🥉']
 const medalColors = [
@@ -132,19 +145,29 @@ onMounted(() => {
         <div class="podium-info">
           <div class="podium-name" :title="item.name">{{ item.name }}</div>
           <div class="podium-stats">
-            <span class="podium-amount">¥{{ formatCompact(item.amount) }}</span>
-            <span class="podium-count">{{ item.count }} 单</span>
+            <template v-if="mode === 'amount'">
+              <span class="podium-amount">¥{{ formatCompact(item.amount) }}</span>
+              <span class="podium-count">{{ item.count }} 单</span>
+            </template>
+            <template v-else>
+              <span class="podium-amount">{{ item.count }} 单</span>
+              <span class="podium-count">¥{{ formatCompact(item.amount) }}</span>
+            </template>
           </div>
           <div class="podium-bar-wrap">
             <div
               class="podium-bar"
               :style="{
-                width: (item.amount / Math.max(1, zoneTotal) * 100) + '%',
+                width: mode === 'amount'
+                  ? (item.amount / Math.max(1, zoneTotal) * 100) + '%'
+                  : (item.count / Math.max(1, orderTotal) * 100) + '%',
                 background: medalColors[i].border
               }"
             ></div>
           </div>
-          <div class="podium-share">{{ Math.round(item.amount / Math.max(1, zoneTotal) * 100) }}%</div>
+          <div class="podium-share">{{ mode === 'amount'
+            ? Math.round(item.amount / Math.max(1, zoneTotal) * 100)
+            : Math.round(item.count / Math.max(1, orderTotal) * 100) }}%</div>
         </div>
       </div>
     </div>
@@ -267,6 +290,7 @@ h2 {
 .podium-stats {
   display: flex;
   justify-content: center;
+  align-items: baseline;
   gap: 8px;
   font-size: 11px;
   color: var(--muted);
