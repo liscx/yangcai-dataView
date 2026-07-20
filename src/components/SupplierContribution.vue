@@ -4,6 +4,27 @@ const props = defineProps({
   kpis: Object,
   zoneRank: Array
 })
+
+// 彩虹配色方案
+const rainbowColors = [
+  { bg: 'linear-gradient(135deg, #fef2f2, #fee2e2)', border: '#fca5a5', text: '#dc2626' },
+  { bg: 'linear-gradient(135deg, #fff7ed, #ffedd5)', border: '#fdba74', text: '#ea580c' },
+  { bg: 'linear-gradient(135deg, #fefce8, #fef9c3)', border: '#fde047', text: '#ca8a04' },
+  { bg: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '#86efac', text: '#16a34a' },
+  { bg: 'linear-gradient(135deg, #ecfeff, #cffafe)', border: '#67e8f9', text: '#0891b2' },
+  { bg: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '#93c5fd', text: '#2563eb' },
+  { bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)', border: '#c4b5fd', text: '#7c3aed' },
+  { bg: 'linear-gradient(135deg, #fdf2f8, #fce7f3)', border: '#f9a8d4', text: '#db2777' },
+]
+
+function getTagStyle(index) {
+  const color = rainbowColors[index % rainbowColors.length]
+  return {
+    background: color.bg,
+    borderColor: color.border,
+    color: color.text
+  }
+}
 </script>
 
 <template>
@@ -13,7 +34,7 @@ const props = defineProps({
       <span class="note">{{ zoneRank.length }} 个</span>
     </div>
     <div class="tags">
-      <span v-for="zone in zoneRank" :key="zone.name" class="tag" :title="zone.name">{{ zone.name }}</span>
+      <span v-for="(zone, index) in zoneRank" :key="zone.name" class="tag" :style="getTagStyle(index)" :title="zone.name">{{ zone.name }}</span>
     </div>
   </article>
 </template>
