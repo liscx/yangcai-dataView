@@ -35,32 +35,43 @@ function fmtActual(n) {
   return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-// 专区颜色 - 动态生成，基于 HSL 色相等距分布
-function genZoneColors(n) {
-  const colors = []
-  // 黄金角 ≈ 137.5°，保证相邻颜色色相差距大、不易重复
+// 专区颜色 - 精选种子色 + HSL 补充
+const seedColors = [
+  { main: '#3b82f6', light: '#93c5fd' },  // 蓝
+  { main: '#10b981', light: '#6ee7b7' },  // 翡翠绿
+  { main: '#f59e0b', light: '#fcd34d' },  // 琥珀
+  { main: '#8b5cf6', light: '#c4b5fd' },  // 紫
+  { main: '#ef4444', light: '#fca5a5' },  // 红
+  { main: '#06b6d4', light: '#a5f3fc' },  // 青
+  { main: '#ec4899', light: '#fbcfe8' },  // 粉
+  { main: '#f97316', light: '#fed7aa' },  // 橙
+  { main: '#6366f1', light: '#a5b4fc' },  // 靛蓝
+  { main: '#14b8a6', light: '#5eead4' },  // 青绿
+  { main: '#eab308', light: '#fde047' },  // 黄
+  { main: '#a855f7', light: '#c084fc' },  // 亮紫
+]
+
+// 种子色用完后，用 HSL 按黄金角补充
+function genOverflowColor(i) {
   const goldenAngle = 137.508
-  for (let i = 0; i < n; i++) {
-    const hue = (i * goldenAngle) % 360
-    const s = 78 - Math.min(i * 0.3, 10)   // 高饱和度，微降避免过艳
-    const l = 55 + (i % 3) * 5              // 亮度在 55/60/65 间交替，增加区分度
-    colors.push({
-      main: `hsl(${hue}, ${s}%, ${l}%)`,
-      light: `hsl(${hue}, ${s + 10}%, ${Math.min(l + 20, 88)}%)`
-    })
+  const hue = (i * goldenAngle + 30) % 360  // 偏移 30° 避开种子色色相
+  const s = 65
+  const l = 55 + (i % 3) * 5
+  return {
+    main: `hsl(${hue}, ${s}%, ${l}%)`,
+    light: `hsl(${hue}, ${s + 10}%, ${Math.min(l + 20, 88)}%)`
   }
-  return colors
 }
 
 function getZoneColor(index) {
-  // 优先使用预生成缓存，按需扩展
-  while (zoneColorCache.length <= index) {
-    zoneColorCache.push(...genZoneColors(10))
+  if (index < seedColors.length) return seedColors[index]
+  while (zoneColorCache.length <= index - seedColors.length) {
+    zoneColorCache.push(genOverflowColor(zoneColorCache.length + seedColors.length))
   }
-  return zoneColorCache[index]
+  return zoneColorCache[index - seedColors.length]
 }
 
-const zoneColorCache = genZoneColors(20)
+const zoneColorCache = []
 
 function initMonthChart() {
   if (!monthChartRef.value) return
