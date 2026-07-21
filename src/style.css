@@ -41,13 +41,7 @@ body {
 }
 
 /* 工具类 */
-.text-muted { color: var(--muted); }
-.text-right { text-align: right; }
 .font-bold { font-weight: 700; }
-.font-extrabold { font-weight: 800; }
-.whitespace-nowrap { white-space: nowrap; }
-.overflow-hidden { overflow: hidden; }
-.text-ellipsis { text-overflow: ellipsis; }
 
 /* 滚动条样式 */
 ::-webkit-scrollbar {

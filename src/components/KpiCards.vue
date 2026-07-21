@@ -36,7 +36,7 @@ const cards = [
     value: props.kpis.curMonthAmount || 0,
     format: 'money',
     hint: `本月 ${formatExact(props.kpis.curMonthAmount || 0)}`,
-    color: '#1d4ed8'
+    color: '#c2410c'
   },
   {
     label: '本周交易金额',
@@ -78,7 +78,7 @@ const cards = [
     value: props.kpis.curMonthOrders || 0,
     format: 'number',
     hint: '本月累计笔数',
-    color: '#1d4ed8'
+    color: '#c2410c'
   },
   {
     label: '本周订单数',

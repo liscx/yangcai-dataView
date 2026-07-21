@@ -4,17 +4,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import App from './App.vue'
 import './style.css'
 
-// 页面等比缩放：设计宽度 1920px，视口不足时自动缩小
-const DESIGN_WIDTH = 1920
-
-function updateZoom() {
-  const ratio = window.innerWidth / DESIGN_WIDTH
-  document.documentElement.style.setProperty('--page-zoom', Math.min(1, ratio))
-}
-
-updateZoom()
-window.addEventListener('resize', updateZoom)
-
 // 禁止浏览器缩放（Ctrl+滚轮、Ctrl+/-、Ctrl+0）
 window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault() }, { passive: false })
 window.addEventListener('keydown', e => {

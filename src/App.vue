@@ -111,11 +111,6 @@ onUnmounted(() => {
   unbindActivity()
   window.removeEventListener('resize', updateScale)
 })
-
-onUnmounted(() => {
-  unbindActivity()
-  window.removeEventListener('resize', updateScale)
-})
 </script>
 
 <template>
