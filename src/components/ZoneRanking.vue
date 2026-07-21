@@ -336,7 +336,7 @@ h2 {
 
 .bar-row {
   display: grid;
-  grid-template-columns: minmax(120px, 1.2fr) 1.5fr 72px 36px;
+  grid-template-columns: minmax(80px, 1fr) 1.8fr 72px 36px;
   gap: 8px;
   align-items: center;
   font-size: 13px;
@@ -344,8 +344,11 @@ h2 {
 
 .bar-name {
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--ink);
   font-size: 12px;
+  min-width: 0;
 }
 
 .track {
