@@ -35,19 +35,32 @@ function fmtActual(n) {
   return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-// 专区颜色 - 柔和专业的配色
-const zoneColors = [
-  { main: '#3b82f6', light: '#93c5fd' },
-  { main: '#14b8a6', light: '#5eead4' },
-  { main: '#f59e0b', light: '#fcd34d' },
-  { main: '#8b5cf6', light: '#c4b5fd' },
-  { main: '#ef4444', light: '#fca5a5' },
-  { main: '#f97316', light: '#fed7aa' },
-  { main: '#06b6d4', light: '#a5f3fc' },
-  { main: '#84cc16', light: '#d9f99d' },
-  { main: '#ec4899', light: '#fbcfe8' },
-  { main: '#6366f1', light: '#a5b4fc' }
-]
+// 专区颜色 - 动态生成，基于 HSL 色相等距分布
+function genZoneColors(n) {
+  const colors = []
+  // 黄金角 ≈ 137.5°，保证相邻颜色色相差距大、不易重复
+  const goldenAngle = 137.508
+  for (let i = 0; i < n; i++) {
+    const hue = (i * goldenAngle) % 360
+    const s = 78 - Math.min(i * 0.3, 10)   // 高饱和度，微降避免过艳
+    const l = 55 + (i % 3) * 5              // 亮度在 55/60/65 间交替，增加区分度
+    colors.push({
+      main: `hsl(${hue}, ${s}%, ${l}%)`,
+      light: `hsl(${hue}, ${s + 10}%, ${Math.min(l + 20, 88)}%)`
+    })
+  }
+  return colors
+}
+
+function getZoneColor(index) {
+  // 优先使用预生成缓存，按需扩展
+  while (zoneColorCache.length <= index) {
+    zoneColorCache.push(...genZoneColors(10))
+  }
+  return zoneColorCache[index]
+}
+
+const zoneColorCache = genZoneColors(20)
 
 function initMonthChart() {
   if (!monthChartRef.value) return
@@ -189,13 +202,13 @@ function initMonthChart() {
       barWidth: '45%',
       data: props.monthTrend.map(x => x[zone] || 0),
       itemStyle: {
-        color: zoneColors[index % zoneColors.length].main,
+        color: getZoneColor(index).main,
         borderRadius: [3, 3, 0, 0]
       },
       emphasis: {
         focus: 'series',
         itemStyle: {
-          color: zoneColors[index % zoneColors.length].light
+          color: getZoneColor(index).light
         }
       }
     }))
@@ -215,7 +228,7 @@ function initMonthChart() {
             if (p.value > 0) {
               total += p.value
               const val = fmtActual(p.value)
-              html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${zoneColors[p.seriesIndex % zoneColors.length].main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
+              html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${getZoneColor(p.seriesIndex).main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
             }
           })
           html += `</div><div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">合计：<strong>¥${fmtActual(total)}</strong></div>`
@@ -261,7 +274,7 @@ function initMonthChart() {
     legendData.value = zones.map((zone, index) => ({
       name: zone,
       visible: true,
-      color: zoneColors[index % zoneColors.length].main
+      color: getZoneColor(index).main
     }))
   }
 
@@ -486,13 +499,13 @@ function initWeekChart() {
       barWidth: '45%',
       data: props.weekTrend.map(x => x[zone] || 0),
       itemStyle: {
-        color: zoneColors[index % zoneColors.length].main,
+        color: getZoneColor(index).main,
         borderRadius: [3, 3, 0, 0]
       },
       emphasis: {
         focus: 'series',
         itemStyle: {
-          color: zoneColors[index % zoneColors.length].light
+          color: getZoneColor(index).light
         }
       }
     }))
@@ -512,7 +525,7 @@ function initWeekChart() {
             if (p.value > 0) {
               total += p.value
               const val = fmtActual(p.value)
-              html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${zoneColors[p.seriesIndex % zoneColors.length].main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
+              html += `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${getZoneColor(p.seriesIndex).main};margin-right:6px"></span>${p.seriesName}：<strong>¥${val}</strong><br/>`
             }
           })
           html += `</div><div style="border-top:1px solid #e5e7eb;margin-top:4px;padding-top:4px">合计：<strong>¥${fmtActual(total)}</strong></div>`
@@ -558,7 +571,7 @@ function initWeekChart() {
     weekLegendData.value = zones.map((zone, index) => ({
       name: zone,
       visible: true,
-      color: zoneColors[index % zoneColors.length].main
+      color: getZoneColor(index).main
     }))
   }
 
@@ -657,7 +670,7 @@ function handleResize() {
           :class="{ inactive: !zone.visible }"
           @click="toggleSeries(zone.name)"
         >
-          <span class="legend-icon" :style="{ background: zone.visible ? zoneColors[index % zoneColors.length].main : '#d1d5db' }"></span>
+          <span class="legend-icon" :style="{ background: zone.visible ? getZoneColor(index).main : '#d1d5db' }"></span>
           <span class="legend-text">{{ zone.name }}</span>
         </div>
       </div>
@@ -692,7 +705,7 @@ function handleResize() {
           :class="{ inactive: !zone.visible }"
           @click="toggleWeekSeries(zone.name)"
         >
-          <span class="legend-icon" :style="{ background: zone.visible ? zoneColors[index % zoneColors.length].main : '#d1d5db' }"></span>
+          <span class="legend-icon" :style="{ background: zone.visible ? getZoneColor(index).main : '#d1d5db' }"></span>
           <span class="legend-text">{{ zone.name }}</span>
         </div>
       </div>
