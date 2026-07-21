@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { onMounted, onUnmounted, ref, watch, nextTick, provide } from 'vue'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -62,6 +62,8 @@ gsap.timeline = (...args) => {
 watch(authed, v => {
   if (v) { _pendingAnims.forEach(fn => fn()); _pendingAnims.length = 0 }
 })
+
+provide('authed', authed)
 
 function updateScale() {
   scaleRatio.value = window.innerWidth / 1920

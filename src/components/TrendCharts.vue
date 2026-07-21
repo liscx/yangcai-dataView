@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, shallowRef, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef, watch, nextTick, inject } from 'vue'
 import * as echarts from 'echarts'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -24,6 +24,16 @@ const weekViewMode = ref('total') // 'total' | 'zone'
 const weekCanToggle = ref(false)
 const weekToggleState = ref(false)
 const weekLegendData = ref([])
+
+const authed = inject('authed')
+let _chartInited = false
+
+function initCharts() {
+  if (_chartInited) return
+  _chartInited = true
+  initMonthChart()
+  initWeekChart()
+}
 
 // 金额格式化：万为单位，2位小数，截断不四舍五入（用于KPI大数字）
 function fmtMoney(n) {
@@ -617,8 +627,7 @@ watch(weekViewMode, () => {
 })
 
 onMounted(() => {
-  initMonthChart()
-  initWeekChart()
+  if (authed.value) initCharts()
 
   // 滚动触发动画
   if (containerRef.value) {
@@ -633,6 +642,10 @@ onMounted(() => {
   }
 
   window.addEventListener('resize', handleResize)
+})
+
+watch(authed, v => {
+  if (v && !_chartInited) initCharts()
 })
 
 onUnmounted(() => {
