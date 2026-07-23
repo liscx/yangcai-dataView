@@ -82,12 +82,25 @@ onMounted(() => {
         数据截至：{{ dataEndDate }}<br>
         生成时间：{{ generatedAt }}
       </div>
-      <button class="screenshot-btn" title="截图下载" @click="captureScreenshot">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-      </button>
+      <div class="btn-group">
+        <button class="ai-btn" @click="$emit('ai-analyze')">
+          <span class="ai-btn-border"></span>
+          <span class="ai-btn-content">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+            AI 解读
+          </span>
+        </button>
+        <button class="screenshot-btn" title="截图下载" @click="captureScreenshot">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -148,6 +161,12 @@ h1 {
   line-height: 1.7;
 }
 
+.btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .screenshot-btn {
   display: flex;
   align-items: center;
@@ -170,5 +189,65 @@ h1 {
   color: var(--ink);
   border-color: var(--blue);
   background: rgba(59,130,246,.06);
+}
+
+/* AI按钮 - 跑马灯效果 */
+.ai-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 10;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.ai-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+}
+
+.ai-btn-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: marquee 2s linear infinite;
+}
+
+@keyframes marquee {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.ai-btn-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 </style>

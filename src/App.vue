@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import DATA from './data/dashboard.json'
 import HeroSection from './components/HeroSection.vue'
 import KpiCards from './components/KpiCards.vue'
+import AiInsightBar from './components/AiInsightBar.vue'
 import ZoneRanking from './components/ZoneRanking.vue'
 import OrderStatus from './components/OrderStatus.vue'
 import ProcurementFocus from './components/ProcurementFocus.vue'
@@ -23,6 +24,7 @@ const errorMsg = ref('')
 const PASS = 'ygyc@2026'
 const authed = ref(false)
 const scaleRatio = ref(window.innerWidth / 1920)
+const showAiInsight = ref(false)
 
 // ── gsap 动画拦截：认证前缓存所有动画，认证后统一释放 ──
 const _pendingAnims = []
@@ -183,10 +185,20 @@ onUnmounted(() => {
         :generated-at="DATA.generatedAt"
         :data-end-date="DATA.dataEndDate"
         :source="DATA.source"
+        @ai-analyze="showAiInsight = !showAiInsight"
       />
       <KpiCards
         :kpis="DATA.kpis"
         :supplier-types="DATA.supplierTypes"
+      />
+    </div>
+
+    <!-- AI 解读栏 -->
+    <div class="ai-bar-wrapper">
+      <AiInsightBar
+        :active="showAiInsight"
+        :dashboard-data="DATA"
+        @close="showAiInsight = false"
       />
     </div>
 
@@ -381,6 +393,10 @@ onUnmounted(() => {
   grid-template-columns: 1.16fr 2.68fr;
   gap: 16px;
   align-items: stretch;
+}
+
+.ai-bar-wrapper {
+  margin-top: 16px;
 }
 
 .grid-bottom {
