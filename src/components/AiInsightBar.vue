@@ -14,13 +14,17 @@ const emit = defineEmits(['close'])
 
 const barRef = ref(null)
 const wrapperRef = ref(null)
+const bodyRef = ref(null)
 const analyzing = ref(false)
 const resultText = ref('')
+const displayText = ref('')
 const errorMsg = ref('')
 const isFromCache = ref(false)
 let abortController = null
 let marqueeTl = null
 let expandTl = null
+let typewriterTimer = null
+let typewriterQueue = ''
 
 // AI API 配置
 const API_URL = import.meta.env.VITE_AI_API_URL || 'https://api.openai.com/v1'
@@ -66,11 +70,55 @@ function clearCache() {
 
 function buildMessages(data) {
   const dataJson = JSON.stringify(data, null, 2)
-  const userContent = promptTemplate.replace('{{订单统计JSON数据}}', dataJson)
+  const userContent = promptTemplate.replace('{{订单统计JSON}}', dataJson)
 
   return [
     { role: 'user', content: userContent }
   ]
+}
+
+function formatSections(text) {
+  return text
+    .replace(/###\s*一[、.]?\s*交易概览/g, '<div class="section-divider"><span>交易概览</span></div>')
+    .replace(/###\s*二[、.]?\s*经营分析/g, '<div class="section-divider"><span>经营分析</span></div>')
+    .replace(/###\s*三[、.]?\s*运营建议/g, '<div class="section-divider"><span>运营建议</span></div>')
+    .replace(/\n/g, '<br>')
+}
+
+// 打字机效果
+function typewriterAppend(newText) {
+  typewriterQueue += newText
+  if (!typewriterTimer) {
+    typewriterTimer = setInterval(() => {
+      if (typewriterQueue.length > 0) {
+        const chunk = typewriterQueue.slice(0, 3) // 每次显示3个字符
+        typewriterQueue = typewriterQueue.slice(3)
+        resultText.value += chunk
+        displayText.value = formatSections(resultText.value)
+        scrollToBottom()
+      } else {
+        clearInterval(typewriterTimer)
+        typewriterTimer = null
+      }
+    }, 20) // 20ms 每帧
+  }
+}
+
+function stopTypewriter() {
+  clearInterval(typewriterTimer)
+  typewriterTimer = null
+  // 将队列中剩余内容一次性输出
+  if (typewriterQueue) {
+    resultText.value += typewriterQueue
+    displayText.value = formatSections(resultText.value)
+    typewriterQueue = ''
+  }
+}
+
+function scrollToBottom() {
+  if (bodyRef.value) {
+    bodyRef.value.scrollTop = bodyRef.value.scrollHeight
+  }
 }
 
 async function startAnalysis(forceRefresh = false) {
@@ -81,6 +129,7 @@ async function startAnalysis(forceRefresh = false) {
     const cached = loadCache()
     if (cached) {
       resultText.value = cached
+      displayText.value = formatSections(cached)
       isFromCache.value = true
       errorMsg.value = ''
       return
@@ -89,8 +138,10 @@ async function startAnalysis(forceRefresh = false) {
 
   analyzing.value = true
   resultText.value = ''
+  displayText.value = ''
   errorMsg.value = ''
   isFromCache.value = false
+  typewriterQueue = ''
 
   abortController = new AbortController()
 
@@ -142,13 +193,16 @@ async function startAnalysis(forceRefresh = false) {
           const content = parsed.choices?.[0]?.delta?.content
           if (content) {
             fullText += content
-            resultText.value = fullText
+            typewriterAppend(content)
           }
         } catch {
           // skip malformed JSON
         }
       }
     }
+
+    // 等待打字机完成
+    stopTypewriter()
 
     // 生成完成，保存缓存
     if (fullText) {
@@ -169,9 +223,11 @@ function refreshInsight() {
   if (abortController) {
     abortController.abort()
   }
+  stopTypewriter()
   analyzing.value = false
   isFromCache.value = false
   resultText.value = ''
+  displayText.value = ''
   errorMsg.value = ''
   clearCache()
   setTimeout(() => startAnalysis(true), 100)
@@ -222,6 +278,7 @@ watch(() => props.active, (val) => {
     if (abortController) {
       abortController.abort()
     }
+    stopTypewriter()
     analyzing.value = false
     errorMsg.value = ''
   }
@@ -245,6 +302,7 @@ onUnmounted(() => {
   if (abortController) {
     abortController.abort()
   }
+  stopTypewriter()
   if (marqueeTl) {
     marqueeTl.kill()
     marqueeTl = null
@@ -282,13 +340,14 @@ onUnmounted(() => {
             </button>
           </div>
         </div>
-        <div class="insight-body">
-          <span v-if="resultText" class="result-text">{{ resultText }}</span>
-          <span v-if="analyzing && !resultText" class="loading-dots">
+        <div class="insight-body" ref="bodyRef">
+          <div v-if="displayText" class="result-text" v-html="displayText"></div>
+          <span v-if="analyzing && !displayText" class="loading-dots">
             <span>●</span><span>●</span><span>●</span>
           </span>
           <span v-if="errorMsg" class="error-text">{{ errorMsg }}</span>
-          <span v-if="!resultText && !analyzing && !errorMsg" class="placeholder">点击按钮开始 AI 分析...</span>
+          <span v-if="!displayText && !analyzing && !errorMsg" class="placeholder">点击按钮开始 AI 分析...</span>
+          <span v-if="analyzing && displayText" class="cursor">|</span>
         </div>
       </div>
 
@@ -444,10 +503,46 @@ onUnmounted(() => {
   line-height: 1.6;
   color: var(--ink);
   min-height: 22px;
+  max-height: 120px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.insight-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.insight-body::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 2px;
 }
 
 .result-text {
-  display: inline;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.result-text :deep(.section-divider) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.result-text :deep(.section-divider)::before,
+.result-text :deep(.section-divider)::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0.3;
+}
+
+.result-text :deep(.section-divider:first-child) {
+  margin-top: 0;
 }
 
 .loading-dots span {
@@ -474,6 +569,19 @@ onUnmounted(() => {
 .error-text {
   color: #ef4444;
   font-size: 13px;
+}
+
+.cursor {
+  display: inline-block;
+  color: #667eea;
+  font-weight: 700;
+  animation: blink 0.8s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .placeholder {
