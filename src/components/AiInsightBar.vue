@@ -31,41 +31,19 @@ const API_URL = import.meta.env.VITE_AI_API_URL || 'https://api.openai.com/v1'
 const API_KEY = import.meta.env.VITE_AI_API_KEY || ''
 const MODEL = import.meta.env.VITE_AI_MODEL || 'gpt-4o-mini'
 
-// 缓存 key
-const CACHE_KEY = 'ai_insight_cache'
+// 内存缓存，刷新即失效
+let cachedText = null
 
 function saveCache(text) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      text,
-      timestamp: Date.now(),
-      dataEndDate: props.dashboardData?.dataEndDate
-    }))
-  } catch {
-    // ignore storage errors
-  }
+  cachedText = text
 }
 
 function loadCache() {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY)
-    if (!cached) return null
-
-    const { text, dataEndDate } = JSON.parse(cached)
-    // 校验数据日期是否匹配（数据更新后自动失效）
-    if (dataEndDate !== props.dashboardData?.dataEndDate) return null
-    return text
-  } catch {
-    return null
-  }
+  return cachedText
 }
 
 function clearCache() {
-  try {
-    localStorage.removeItem(CACHE_KEY)
-  } catch {
-    // ignore
-  }
+  cachedText = null
 }
 
 function buildMessages(data) {
