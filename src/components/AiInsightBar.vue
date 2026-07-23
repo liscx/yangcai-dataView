@@ -82,6 +82,7 @@ function formatSections(text) {
     .replace(/###\s*一[、.]?\s*交易概览/g, '<div class="section-divider"><span>交易概览</span></div>')
     .replace(/###\s*二[、.]?\s*经营分析/g, '<div class="section-divider"><span>经营分析</span></div>')
     .replace(/###\s*三[、.]?\s*运营建议/g, '<div class="section-divider"><span>运营建议</span></div>')
+    .replace(/\n{2,}/g, '<br>')  // 多个换行合并为一个
     .replace(/\n/g, '<br>')
 }
 
@@ -518,8 +519,8 @@ onUnmounted(() => {
 }
 
 .result-text {
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 17px;
+  line-height: 1.8;
 }
 
 .result-text :deep(.section-divider) {
