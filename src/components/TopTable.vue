@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
@@ -33,16 +33,15 @@ function getRankClass(index) {
 
 function switchMode(newMode) {
   mode.value = newMode
-  if (containerRef.value) {
+  nextTick(() => {
+    if (!containerRef.value) return
     const rows = containerRef.value.querySelectorAll('tbody tr')
-    gsap.from(rows, {
-      x: -10,
-      opacity: 0,
-      duration: 0.3,
-      stagger: 0.05,
-      ease: 'power2.out'
-    })
-  }
+    gsap.killTweensOf(rows)
+    gsap.fromTo(rows,
+      { x: -10, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
+    )
+  })
 }
 
 onMounted(() => {
