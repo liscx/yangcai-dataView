@@ -70,7 +70,7 @@ const cards = [
     label: '总订单数',
     value: props.kpis.totalOrders || 0,
     format: 'number',
-    hint: `笔均 ${formatExact(props.kpis.avgAmount || 0)}`,
+    hint: '总计订单笔数',
     color: '#2563eb'
   },
   {
