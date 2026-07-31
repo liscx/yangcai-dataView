@@ -16,7 +16,7 @@ const sortedData = computed(() => {
   } else {
     data.sort((a, b) => b.count - a.count)
   }
-  return data.slice(0, 10)
+  return data
 })
 
 const maxValue = computed(() => {
@@ -28,31 +28,7 @@ const maxValue = computed(() => {
 
 const zoneTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.amount, 0))
 const orderTotal = computed(() => props.zoneRank.reduce((s, x) => s + x.count, 0))
-const top3Share = computed(() => {
-  if (mode.value === 'amount') {
-    const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.amount, 0)
-    return Math.round(top3 / Math.max(1, zoneTotal.value) * 100)
-  } else {
-    const top3 = sortedData.value.slice(0, 3).reduce((s, x) => s + x.count, 0)
-    return Math.round(top3 / Math.max(1, orderTotal.value) * 100)
-  }
-})
 const top3 = computed(() => sortedData.value.slice(0, 3))
-const avgPerOrder = computed(() => Math.round(zoneTotal.value / Math.max(1, orderTotal.value)))
-
-const insights = computed(() => {
-  const top1Value = mode.value === 'amount'
-    ? sortedData.value[0].amount
-    : sortedData.value[0].count
-  const total = mode.value === 'amount' ? zoneTotal.value : orderTotal.value
-  const top1Share = Math.round(top1Value / Math.max(1, total) * 100)
-
-  return [
-    ['TOP1 占比', top1Share + '%'],
-    ['TOP3 占比', top3Share.value + '%'],
-    ['活跃专区', props.zoneRank.length + ' 个']
-  ]
-})
 
 const medals = ['🥇', '🥈', '🥉']
 const medalColors = [
@@ -86,14 +62,14 @@ function switchMode(newMode) {
   mode.value = newMode
   nextTick(() => {
     const bars = containerRef.value?.querySelectorAll('.fill')
-    if (bars) {
-      gsap.from(bars, {
-        width: 0,
-        duration: 0.5,
-        stagger: 0.05,
-        ease: 'power2.out'
-      })
-    }
+    if (!bars || !bars.length) return
+    gsap.killTweensOf(bars)
+    // 先记录 Vue 渲染的目标宽度，再做动画
+    const targets = Array.from(bars).map(el => el.style.width)
+    gsap.fromTo(bars,
+      { width: 0 },
+      { width: (i) => targets[i] || '0%', duration: 0.5, stagger: 0.05, ease: 'power2.out', overwrite: true }
+    )
   })
 }
 
@@ -120,7 +96,7 @@ onMounted(() => {
 <template>
   <article ref="containerRef" class="panel">
     <div class="panel-head">
-      <h2>专区top10</h2>
+      <h2>专区排行榜</h2>
       <div class="seg">
         <button
           :class="{ active: mode === 'amount' }"
@@ -185,14 +161,6 @@ onMounted(() => {
         </div>
         <div class="bar-value">{{ formatValue(item) }}</div>
         <div class="bar-share">{{ getShare(item) }}%</div>
-      </div>
-    </div>
-
-    <!-- 底部洞察 -->
-    <div class="insights">
-      <div v-for="[label, value] in insights" :key="label" class="insight-item">
-        <span class="insight-label">{{ label }}</span>
-        <span class="insight-value">{{ value }}</span>
       </div>
     </div>
   </article>
@@ -332,6 +300,26 @@ h2 {
 .bars {
   display: grid;
   gap: 9px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.bars::-webkit-scrollbar {
+  width: 5px;
+}
+
+.bars::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bars::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+.bars::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .bar-row {
@@ -376,31 +364,5 @@ h2 {
   text-align: right;
   font-size: 11px;
   color: var(--muted);
-}
-
-.insights {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-
-.insight-item {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.insight-label {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.insight-value {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
 }
 </style>
