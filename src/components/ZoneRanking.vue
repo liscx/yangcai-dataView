@@ -39,12 +39,18 @@ const medalColors = [
 
 function formatValue(item) {
   if (mode.value === 'amount') {
+    if (item.amount < 100) {
+      return '¥' + item.amount.toFixed(2)
+    }
     return '¥' + (Math.floor(item.amount / 10000 * 100) / 100).toFixed(2) + '万'
   }
   return item.count + ' 笔'
 }
 
 function formatCompact(n) {
+  if (n < 100) {
+    return n.toFixed(2)
+  }
   return (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
 }
 
