@@ -11,13 +11,13 @@ const mode = ref('amount')
 const containerRef = ref(null)
 
 const sortedData = computed(() => {
-  const data = [...props.data].slice(0, 10)
+  const data = [...props.data]
   if (mode.value === 'amount') {
     data.sort((a, b) => b.amount - a.amount)
   } else {
     data.sort((a, b) => b.count - a.count)
   }
-  return data
+  return data.slice(0, 10)
 })
 
 function formatMoney(n) {
