@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
@@ -9,6 +9,7 @@ const props = defineProps({
 
 const mode = ref('amount')
 const containerRef = ref(null)
+let animationContext = null
 
 const sortedData = computed(() => {
   const data = [...props.data]
@@ -36,26 +37,31 @@ function switchMode(newMode) {
   nextTick(() => {
     if (!containerRef.value) return
     const rows = containerRef.value.querySelectorAll('tbody tr')
-    gsap.killTweensOf(rows)
-    gsap.fromTo(rows,
-      { x: -10, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
-    )
+    animationContext?.add(() => {
+      gsap.killTweensOf(rows)
+      gsap.fromTo(rows,
+        { x: -10, autoAlpha: 0 },
+        { x: 0, autoAlpha: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' }
+      )
+    })
   })
 }
 
 onMounted(() => {
   if (!containerRef.value) return
-  const rows = containerRef.value.querySelectorAll('tbody tr')
-  gsap.from(rows, {
-    y: 15,
-    opacity: 0,
-    duration: 0.4,
-    stagger: 0.06,
-    ease: 'power2.out',
-    delay: 0.8
-  })
+  animationContext = gsap.context(() => {
+    gsap.from('tbody tr', {
+      y: 15,
+      autoAlpha: 0,
+      duration: 0.4,
+      stagger: 0.06,
+      ease: 'power2.out',
+      delay: 0.8
+    })
+  }, containerRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>

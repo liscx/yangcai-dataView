@@ -1,12 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 import { domToJpeg } from 'modern-screenshot'
 
 const props = defineProps({
   generatedAt: String,
-  dataEndDate: String,
-  source: String
+  dataEndDate: String
 })
 
 const heroRef = ref(null)
@@ -14,6 +13,7 @@ const titleRef = ref(null)
 const subtitleRef = ref(null)
 const stampRef = ref(null)
 const capturing = ref(false)
+let animationContext = null
 
 async function captureScreenshot() {
   if (capturing.value) return
@@ -46,29 +46,33 @@ async function captureScreenshot() {
 onMounted(() => {
   if (!heroRef.value) return
 
-  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+  animationContext = gsap.context(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
 
-  tl.from(heroRef.value, {
-    y: -40,
-    opacity: 0,
-    duration: 0.8
-  })
-  .from(titleRef.value, {
-    x: -30,
-    opacity: 0,
-    duration: 0.6
-  }, '-=0.4')
-  .from(subtitleRef.value, {
-    x: -20,
-    opacity: 0,
-    duration: 0.5
-  }, '-=0.3')
-  .from(stampRef.value, {
-    x: 30,
-    opacity: 0,
-    duration: 0.5
-  }, '-=0.4')
+    tl.from(heroRef.value, {
+      y: -40,
+      autoAlpha: 0,
+      duration: 0.8
+    })
+    .from(titleRef.value, {
+      x: -30,
+      autoAlpha: 0,
+      duration: 0.6
+    }, '-=0.4')
+    .from(subtitleRef.value, {
+      x: -20,
+      autoAlpha: 0,
+      duration: 0.5
+    }, '-=0.3')
+    .from(stampRef.value, {
+      x: 30,
+      autoAlpha: 0,
+      duration: 0.5
+    }, '-=0.4')
+  }, heroRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>

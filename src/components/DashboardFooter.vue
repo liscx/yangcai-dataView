@@ -1,24 +1,28 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const footerRef = ref(null)
+let animationContext = null
 
 onMounted(() => {
   if (!footerRef.value) return
-  gsap.from(footerRef.value, {
-    opacity: 0,
-    y: 20,
-    duration: 0.5,
-    ease: 'power2.out',
-    scrollTrigger: {
-      trigger: footerRef.value,
-      start: 'top 95%',
-      toggleActions: 'play none none reverse'
-    }
-  })
+  animationContext = gsap.context(() => {
+    gsap.from(footerRef.value, {
+      autoAlpha: 0,
+      y: 20,
+      duration: 0.5,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: footerRef.value,
+        start: 'top 95%',
+        toggleActions: 'play none none reverse'
+      }
+    })
+  }, footerRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>

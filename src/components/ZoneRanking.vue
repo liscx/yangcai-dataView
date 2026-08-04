@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
@@ -8,6 +8,7 @@ const props = defineProps({
 
 const mode = ref('amount')
 const containerRef = ref(null)
+let animationContext = null
 
 const sortedData = computed(() => {
   const data = [...props.zoneRank]
@@ -69,34 +70,42 @@ function switchMode(newMode) {
   nextTick(() => {
     const bars = containerRef.value?.querySelectorAll('.fill')
     if (!bars || !bars.length) return
-    gsap.killTweensOf(bars)
-    // 先记录 Vue 渲染的目标宽度，再做动画
-    const targets = Array.from(bars).map(el => el.style.width)
-    gsap.fromTo(bars,
-      { width: 0 },
-      { width: (i) => targets[i] || '0%', duration: 0.5, stagger: 0.05, ease: 'power2.out', overwrite: true }
-    )
+    animationContext?.add(() => {
+      gsap.killTweensOf(bars)
+      // 先记录 Vue 渲染的目标宽度，再做动画
+      const targets = Array.from(bars).map(el => el.style.width)
+      gsap.fromTo(bars,
+        { scaleX: 0, transformOrigin: 'left center' },
+        { scaleX: 1, duration: 0.5, stagger: 0.05, ease: 'power2.out', overwrite: true }
+      )
+      bars.forEach((bar, index) => { bar.style.width = targets[index] || '0%' })
+    })
   })
 }
 
 onMounted(() => {
   if (!containerRef.value) return
-  gsap.from(containerRef.value.querySelectorAll('.podium-card'), {
-    y: 12,
-    opacity: 0,
-    duration: 0.5,
-    stagger: 0.1,
-    ease: 'power2.out',
-    delay: 0.3
-  })
-  gsap.from(containerRef.value.querySelectorAll('.fill'), {
-    width: 0,
-    duration: 0.8,
-    stagger: 0.08,
-    ease: 'power2.out',
-    delay: 0.5
-  })
+  animationContext = gsap.context(() => {
+    gsap.from('.podium-card', {
+      y: 12,
+      autoAlpha: 0,
+      duration: 0.5,
+      stagger: 0.1,
+      ease: 'power2.out',
+      delay: 0.3
+    })
+    gsap.from('.fill', {
+      scaleX: 0,
+      transformOrigin: 'left center',
+      duration: 0.8,
+      stagger: 0.08,
+      ease: 'power2.out',
+      delay: 0.5
+    })
+  }, containerRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>

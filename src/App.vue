@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, onUnmounted, ref, watch, nextTick, provide } from 'vue'
-import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import DATA from './data/dashboard.json'
@@ -26,45 +25,7 @@ const PASS = 'ygyc@2026'
 const authed = ref(false)
 const scaleRatio = ref(window.innerWidth / 1920)
 const showAiInsight = ref(false)
-
-// ── gsap 动画拦截：认证前缓存所有动画，认证后统一释放 ──
-const _pendingAnims = []
-let _mounting = true
-const _origFrom = gsap.from.bind(gsap)
-const _origTo = gsap.to.bind(gsap)
-const _origFromTo = gsap.fromTo.bind(gsap)
-const _origTimeline = gsap.timeline.bind(gsap)
-
-gsap.from = (...args) => {
-  if (_mounting && !authed.value) { _pendingAnims.push(() => _origFrom(...args)); return null }
-  return _origFrom(...args)
-}
-gsap.to = (...args) => {
-  if (_mounting && !authed.value) { _pendingAnims.push(() => _origTo(...args)); return null }
-  return _origTo(...args)
-}
-gsap.fromTo = (...args) => {
-  if (_mounting && !authed.value) { _pendingAnims.push(() => _origFromTo(...args)); return null }
-  return _origFromTo(...args)
-}
-gsap.timeline = (...args) => {
-  if (_mounting && !authed.value) {
-    const tl = _origTimeline({ paused: true, ...args })
-    const _tlFrom = tl.from.bind(tl)
-    const _tlTo = tl.to.bind(tl)
-    const _tlFromTo = tl.fromTo.bind(tl)
-    tl.from = (...a) => { _tlFrom(...a); return tl }
-    tl.to = (...a) => { _tlTo(...a); return tl }
-    tl.fromTo = (...a) => { _tlFromTo(...a); return tl }
-    _pendingAnims.push(() => tl.play())
-    return tl
-  }
-  return _origTimeline(...args)
-}
-
-watch(authed, v => {
-  if (v) { _pendingAnims.forEach(fn => fn()); _pendingAnims.length = 0 }
-})
+const dashboardReady = ref(false)
 
 provide('authed', authed)
 
@@ -133,7 +94,9 @@ function unbindActivity() {
 
 watch(authed, val => {
   if (val) {
+    dashboardReady.value = true
     bindActivity()
+    nextTick(() => ScrollTrigger.refresh())
   } else {
     unbindActivity()
     password.value = ''
@@ -141,8 +104,6 @@ watch(authed, val => {
 })
 
 onMounted(() => {
-  _mounting = false
-  ScrollTrigger.refresh()
   window.addEventListener('resize', updateScale)
   // 内容渲染后修正高度
   nextTick(() => fitScaleHeight())
@@ -183,18 +144,16 @@ onUnmounted(() => {
 
   <div ref="scaleStageRef" class="scale-stage">
     <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
-    <main ref="appRef" class="shell" :class="{ blurred: !authed }">
+    <main v-if="dashboardReady" ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- Hero + KPI 合并行 -->
     <div class="hero-kpi-row">
       <HeroSection
         :generated-at="DATA.generatedAt"
         :data-end-date="DATA.dataEndDate"
-        :source="DATA.source"
         @ai-analyze="showAiInsight = !showAiInsight"
       />
       <KpiCards
         :kpis="DATA.kpis"
-        :supplier-types="DATA.supplierTypes"
       />
     </div>
 
@@ -214,9 +173,6 @@ onUnmounted(() => {
         <ZoneRanking :zone-rank="DATA.zoneRank" />
         <OrderStatus :status-rank="DATA.statusRank" />
         <ProcurementFocus
-          :buyer-rank="DATA.buyerRank"
-          :kpis="DATA.kpis"
-          :month-trend="DATA.monthTrend"
           :new-zones="DATA.newZones"
         />
       </div>
@@ -239,8 +195,6 @@ onUnmounted(() => {
         />
         <AmountBands :amount-bands="DATA.amountBands" />
         <SupplierContribution
-          :supplier-rank="DATA.supplierRank"
-          :kpis="DATA.kpis"
           :zone-rank="DATA.zoneRank"
         />
       </div>
