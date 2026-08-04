@@ -1,29 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
-  kpis: Object,
-  supplierTypes: Array
+  kpis: Object
 })
 
 const cardsRef = ref(null)
-const valueRefs = ref([])
+let animationContext = null
 
-const local = props.supplierTypes.find(x => x.name.includes('本地')) || { amount: 0, count: 0 }
-const ecommerce = props.supplierTypes.find(x => x.name.includes('电商')) || { amount: 0, count: 0 }
-const localCountPct = Math.round(local.count / Math.max(1, props.kpis.totalOrders) * 100)
-const ecommerceCountPct = Math.round(ecommerce.count / Math.max(1, props.kpis.totalOrders) * 100)
-
-const momRate = props.kpis.momRate
-const momLabel = momRate === null || momRate === undefined
+const momRate = computed(() => props.kpis.momRate)
+const momLabel = computed(() => momRate.value === null || momRate.value === undefined
   ? '上月无数据'
-  : (momRate >= 0 ? `↑ ${momRate}%` : `↓ ${Math.abs(momRate)}%`)
-const momColor = momRate === null || momRate === undefined
+  : (momRate.value >= 0 ? `↑ ${momRate.value}%` : `↓ ${Math.abs(momRate.value)}%`))
+const momColor = computed(() => momRate.value === null || momRate.value === undefined
   ? '#9ca3af'
-  : (momRate >= 0 ? '#16a34a' : '#e11d48')
+  : (momRate.value >= 0 ? '#16a34a' : '#e11d48'))
 
-const cards = [
+const cards = computed(() => [
   {
     label: '总交易金额',
     value: props.kpis.totalAmount || 0,
@@ -64,7 +58,7 @@ const cards = [
     value: 0,
     format: 'mom',
     hint: `上月同期 ${formatExact(props.kpis.prevMonthAmount || 0)}`,
-    color: momRate >= 0 ? '#16a34a' : '#e11d48'
+    color: momColor.value
   },
   {
     label: '总订单数',
@@ -108,14 +102,14 @@ const cards = [
     hint: '每笔订单均值',
     color: '#e11d48'
   }
-]
+])
 
 function formatValue(value, format) {
   if (format === 'money') {
     if (value >= 10000) return '¥' + (Math.floor(value / 10000 * 100) / 100).toFixed(2) + '万'
     return '¥' + Math.floor(value).toLocaleString('zh-CN')
   }
-  if (format === 'mom') return momLabel
+  if (format === 'mom') return momLabel.value
   return Math.round(value).toLocaleString('zh-CN')
 }
 
@@ -127,40 +121,39 @@ onMounted(() => {
   if (!cardsRef.value) return
 
   // 卡片入场动画
-  const cardElements = cardsRef.value.querySelectorAll('.kpi')
-  gsap.from(cardElements, {
-    y: 30,
-    opacity: 0,
-    duration: 0.6,
-    stagger: 0.08,
-    ease: 'power2.out',
-    clearProps: 'transform,opacity'
-  })
-
-  // 数字滚动动画（mom格式跳过数字滚动，直接显示）
-  cardElements.forEach((card, index) => {
-    const valueEl = card.querySelector('.value')
-    const targetValue = cards[index].value
-    const format = cards[index].format
-
-    if (format === 'mom') {
-      valueEl.textContent = momLabel
-      valueEl.style.color = momColor
-      return
-    }
-
-    const obj = { value: 0 }
-    gsap.to(obj, {
-      value: targetValue,
-      duration: 1.5,
-      delay: 0.3 + index * 0.1,
+  animationContext = gsap.context(() => {
+    const cardElements = cardsRef.value.querySelectorAll('.kpi')
+    gsap.from(cardElements, {
+      y: 30,
+      autoAlpha: 0,
+      duration: 0.6,
+      stagger: 0.08,
       ease: 'power2.out',
-      onUpdate: () => {
-        valueEl.textContent = formatValue(obj.value, format)
-      }
+      clearProps: 'transform,opacity,visibility'
     })
-  })
+
+    // 数字滚动动画（mom格式直接显示）
+    cardElements.forEach((card, index) => {
+      const valueEl = card.querySelector('.value')
+      const cardData = cards.value[index]
+
+      if (cardData.format === 'mom') return
+
+      const obj = { value: 0 }
+      gsap.to(obj, {
+        value: cardData.value,
+        duration: 1.5,
+        delay: 0.3 + index * 0.1,
+        ease: 'power2.out',
+        onUpdate: () => {
+          valueEl.textContent = formatValue(obj.value, cardData.format)
+        }
+      })
+    })
+  }, cardsRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>
@@ -172,7 +165,9 @@ onMounted(() => {
       :style="{ borderTopColor: card.color }"
     >
       <div class="label">{{ card.label }}</div>
-      <div class="value">0</div>
+      <div class="value" :style="card.format === 'mom' ? { color: momColor } : null">
+        {{ formatValue(card.value, card.format) }}
+      </div>
       <div class="hint">{{ card.hint }}</div>
     </div>
   </section>

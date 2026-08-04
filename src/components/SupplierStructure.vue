@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
@@ -8,17 +8,14 @@ const props = defineProps({
 })
 
 const containerRef = ref(null)
+let animationContext = null
 
-const totalOrders = props.kpis.totalOrders
-const totalAmount = props.kpis.totalAmount
-
-const local = props.supplierTypes.find(x => x.name.includes('本地')) || { count: 0, amount: 0 }
-const ecommerce = props.supplierTypes.find(x => x.name.includes('电商')) || { count: 0, amount: 0 }
-
-const localCountPct = Math.round(local.count / totalOrders * 100)
-const ecommerceCountPct = Math.round(ecommerce.count / totalOrders * 100)
-const localAmountPct = Math.round(local.amount / totalAmount * 100)
-const ecommerceAmountPct = Math.round(ecommerce.amount / totalAmount * 100)
+const local = computed(() => props.supplierTypes.find(x => x.name.includes('本地')) || { count: 0, amount: 0 })
+const ecommerce = computed(() => props.supplierTypes.find(x => x.name.includes('电商')) || { count: 0, amount: 0 })
+const localCountPct = computed(() => Math.round(local.value.count / Math.max(1, props.kpis.totalOrders) * 100))
+const ecommerceCountPct = computed(() => Math.round(ecommerce.value.count / Math.max(1, props.kpis.totalOrders) * 100))
+const localAmountPct = computed(() => Math.round(local.value.amount / Math.max(1, props.kpis.totalAmount) * 100))
+const ecommerceAmountPct = computed(() => Math.round(ecommerce.value.amount / Math.max(1, props.kpis.totalAmount) * 100))
 
 function fmtMoney(n) {
   return (Math.floor(n / 10000 * 100) / 100).toFixed(2) + '万'
@@ -30,16 +27,20 @@ function fmtFull(n) {
 
 onMounted(() => {
   if (!containerRef.value) return
-  gsap.from(containerRef.value.querySelectorAll('.structure-card'), {
-    y: 15,
-    opacity: 0,
-    duration: 0.5,
-    stagger: 0.15,
-    ease: 'power2.out',
-    delay: 0.6,
-    clearProps: 'all'
-  })
+  animationContext = gsap.context(() => {
+    gsap.from('.structure-card', {
+      y: 15,
+      autoAlpha: 0,
+      duration: 0.5,
+      stagger: 0.15,
+      ease: 'power2.out',
+      delay: 0.6,
+      clearProps: 'all'
+    })
+  }, containerRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>
@@ -103,34 +104,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px;
-}
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
-}
 
-h2 {
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-weight: 700;
-}
 
-.note {
-  color: var(--muted);
-  font-size: 12px;
-}
 
 .type-matrix {
   display: grid;

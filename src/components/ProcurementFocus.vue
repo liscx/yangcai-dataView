@@ -1,8 +1,5 @@
 <script setup>
-const props = defineProps({
-  buyerRank: Array,
-  kpis: Object,
-  monthTrend: Array,
+defineProps({
   newZones: {
     type: Array,
     default: () => []
@@ -46,36 +43,17 @@ function getTagStyle(index) {
 
 <style scoped>
 .panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 18px;
   display: flex;
   flex-direction: column;
 }
 
 .panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
   flex-shrink: 0;
 }
 
-h2 {
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-weight: 700;
-}
 
-.note {
-  color: var(--muted);
-  font-size: 12px;
-}
+
+
 
 .tags {
   display: flex;

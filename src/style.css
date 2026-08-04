@@ -43,6 +43,69 @@ body {
 /* 工具类 */
 .font-bold { font-weight: 700; }
 
+/* 看板卡片与标题栏 */
+.panel {
+  border: 1px solid var(--panel-border, var(--line));
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--panel-backdrop, none);
+  padding: 18px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* 统一分段选择器 */
+.seg {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.seg button {
+  border: 0;
+  border-radius: 6px;
+  padding: 5px 9px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  transition: color var(--transition), background-color var(--transition), box-shadow var(--transition);
+}
+
+.seg button:hover {
+  color: var(--ink);
+}
+
+.seg button.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--red), var(--gold));
+  box-shadow: 0 6px 15px rgba(215, 25, 32, 0.18);
+}
+
 /* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 6px;

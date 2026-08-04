@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
@@ -7,8 +7,9 @@ const props = defineProps({
 })
 
 const containerRef = ref(null)
+let animationContext = null
 
-const total = props.statusRank.reduce((s, x) => s + x.count, 0)
+const total = computed(() => props.statusRank.reduce((sum, item) => sum + item.count, 0))
 
 const statusColors = {
   '收货完成': 'var(--green)',
@@ -24,21 +25,24 @@ function getStatusColor(name) {
 }
 
 function getPercent(count) {
-  return Math.round(count / total * 100)
+  return Math.round(count / Math.max(1, total.value) * 100)
 }
 
 onMounted(() => {
   if (!containerRef.value) return
-  const items = containerRef.value.querySelectorAll('.status-item')
-  gsap.from(items, {
-    x: -20,
-    opacity: 0,
-    duration: 0.5,
-    stagger: 0.08,
-    ease: 'power2.out',
-    delay: 0.6
-  })
+  animationContext = gsap.context(() => {
+    gsap.from('.status-item', {
+      x: -20,
+      autoAlpha: 0,
+      duration: 0.5,
+      stagger: 0.08,
+      ease: 'power2.out',
+      delay: 0.6
+    })
+  }, containerRef.value)
 })
+
+onUnmounted(() => animationContext?.revert())
 </script>
 
 <template>
@@ -73,34 +77,13 @@ onMounted(() => {
 
 <style scoped>
 .panel {
-  border: 1px solid rgba(255,255,255,.74);
-  background: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  padding: 18px;
+  --panel-border: rgba(255, 255, 255, 0.74);
+  --panel-backdrop: blur(14px);
 }
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
-}
 
-h2 {
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-weight: 700;
-}
 
-.note {
-  color: var(--muted);
-  font-size: 12px;
-}
+
 
 .status-list {
   display: grid;

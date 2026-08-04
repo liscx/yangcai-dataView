@@ -107,56 +107,15 @@ onUnmounted(() => animationContext?.revert())
 
 <style scoped>
 .panel {
-  border: 1px solid rgba(255,255,255,.74);
-  background: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(14px);
-  padding: 18px;
+  --panel-border: rgba(255, 255, 255, 0.74);
+  --panel-backdrop: blur(14px);
 }
 
-.panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 14px;
-}
 
-h2 {
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: 0;
-  color: var(--ink);
-  font-weight: 700;
-}
 
-.seg {
-  display: inline-flex;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255,255,255,.7);
-  gap: 3px;
-}
 
-.seg button {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
-  padding: 5px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--transition);
-}
 
-.seg button.active {
-  color: #fff;
-  background: linear-gradient(135deg, var(--red), var(--gold));
-  box-shadow: 0 6px 15px rgba(215,25,32,.18);
-}
+
 
 table {
   width: 100%;
