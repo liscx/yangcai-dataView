@@ -10,7 +10,7 @@ const props = defineProps({
   dashboardData: Object
 })
 
-const emit = defineEmits(['close'])
+defineEmits(['close'])
 
 const barRef = ref(null)
 const wrapperRef = ref(null)
@@ -25,11 +25,11 @@ let marqueeTl = null
 let expandTl = null
 let typewriterTimer = null
 let typewriterQueue = ''
+let refreshTimer = null
+let animationContext = null
 
 // AI API 配置
-const API_URL = import.meta.env.VITE_AI_API_URL || 'https://api.openai.com/v1'
-const API_KEY = import.meta.env.VITE_AI_API_KEY || ''
-const MODEL = import.meta.env.VITE_AI_MODEL || 'gpt-4o-mini'
+const API_URL = '/api/ai/chat/completions'
 
 // 内存缓存，刷新即失效
 let cachedText = null
@@ -56,7 +56,14 @@ function buildMessages(data) {
 }
 
 function formatSections(text) {
-  return text
+  const escapedText = text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+
+  return escapedText
     .replace(/###\s*一[、.]?\s*交易概览/g, '<div class="section-divider"><span>交易概览</span></div>')
     .replace(/###\s*二[、.]?\s*经营分析/g, '<div class="section-divider"><span>经营分析</span></div>')
     .replace(/###\s*三[、.]?\s*运营建议/g, '<div class="section-divider"><span>运营建议</span></div>')
@@ -127,14 +134,12 @@ async function startAnalysis(forceRefresh = false) {
   try {
     const messages = buildMessages(props.dashboardData)
 
-    const response = await fetch(`${API_URL}/chat/completions`, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: MODEL,
         messages,
         stream: true,
         temperature: 0.7,
@@ -209,7 +214,11 @@ function refreshInsight() {
   displayText.value = ''
   errorMsg.value = ''
   clearCache()
-  setTimeout(() => startAnalysis(true), 100)
+  clearTimeout(refreshTimer)
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null
+    if (props.active) startAnalysis(true)
+  }, 100)
 }
 
 function animateExpand(show) {
@@ -265,15 +274,14 @@ watch(() => props.active, (val) => {
 
 onMounted(() => {
   if (barRef.value) {
-    const borderEl = barRef.value.querySelector('.insight-border')
-    if (borderEl) {
-      marqueeTl = gsap.to(borderEl, {
+    animationContext = gsap.context(() => {
+      marqueeTl = gsap.to('.insight-border', {
         backgroundPosition: '400% center',
         duration: 3,
         ease: 'none',
         repeat: -1
       })
-    }
+    }, barRef.value)
   }
 })
 
@@ -282,15 +290,15 @@ onUnmounted(() => {
     abortController.abort()
   }
   stopTypewriter()
-  if (marqueeTl) {
-    marqueeTl.kill()
-    marqueeTl = null
-  }
+  clearTimeout(refreshTimer)
+  expandTl?.kill()
+  animationContext?.revert()
+  marqueeTl = null
 })
 </script>
 
 <template>
-  <div ref="wrapperRef" class="ai-bar-wrapper" :style="{ display: active ? 'block' : 'none' }">
+  <div ref="wrapperRef" class="ai-bar-wrapper" :aria-hidden="!active">
     <div ref="barRef" class="ai-insight-bar">
       <div class="insight-border"></div>
 
@@ -336,6 +344,12 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.ai-bar-wrapper {
+  display: none;
+  height: 0;
+  opacity: 0;
+}
+
 .ai-insight-bar {
   position: relative;
   grid-column: 1 / -1;
