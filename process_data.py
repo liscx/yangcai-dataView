@@ -1,21 +1,33 @@
-import os
 import pandas as pd
 import json
+import calendar
 from datetime import datetime
 from pathlib import Path
 
-# 读取 Excel（优先 Data/source_data.xlsx，否则 src/assets/阳光优采交易订单.xlsx）
-_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_PRIMARY = os.path.join(_BASE, 'Data', 'source_data.xlsx')
-_FALLBACK = os.path.join('src', 'assets', '阳光优采交易订单.xlsx')
-df = pd.read_excel(_PRIMARY if os.path.exists(_PRIMARY) else _FALLBACK)
+# 所有输入输出都基于脚本目录，避免从不同工作目录执行时读写错位置。
+PROJECT_ROOT = Path(__file__).resolve().parent
+SOURCE_CANDIDATES = [
+    PROJECT_ROOT / 'Data' / 'source_data.xlsx',
+    PROJECT_ROOT.parent / 'Data' / 'source_data.xlsx',  # 兼容原目录结构
+    PROJECT_ROOT / 'src' / 'assets' / '阳光优采交易订单.xlsx',
+]
+source_path = next((path for path in SOURCE_CANDIDATES if path.exists()), None)
+if source_path is None:
+    searched = '\n'.join(f'- {path}' for path in SOURCE_CANDIDATES)
+    raise FileNotFoundError(f'未找到订单数据文件，已检查：\n{searched}')
+
+df = pd.read_excel(source_path)
 
 # 按订单号去重，取订单首行金额
 orders = df.drop_duplicates(subset='订单号', keep='first').copy()
 
 # 基础时间
 now = datetime.now()
-data_end_date = orders['订单创建时间'].max()[:10] if len(orders) > 0 else now.strftime('%Y-%m-%d')
+data_end_date = (
+    pd.to_datetime(orders['订单创建时间']).max().strftime('%Y-%m-%d')
+    if len(orders) > 0
+    else now.strftime('%Y-%m-%d')
+)
 
 # ============ KPI 指标 ============
 total_amount = round(orders['订单金额（元）'].sum(), 2)
@@ -53,7 +65,6 @@ if len(orders) > 0:
     else:
         prev_month = max_date.month - 1
         prev_year = max_date.year
-    import calendar
     max_day_in_prev = calendar.monthrange(prev_year, prev_month)[1]
     prev_month_end_day = min(prev_month_end_day, max_day_in_prev)
     prev_month_start = max_date.replace(year=prev_year, month=prev_month, day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -278,7 +289,7 @@ supplier_top10_share = round(supplier_rank.head(10)['amount'].sum() / total_amou
 result = {
     "generatedAt": now.strftime('%Y-%m-%d %H:%M'),
     "dataEndDate": data_end_date,
-    "source": "阳光优采交易订单.xlsx",
+    "source": source_path.name,
     "kpis": {
         "totalAmount": total_amount,
         "totalOrders": total_orders,
@@ -313,7 +324,7 @@ result = {
 }
 
 # 保存到 JSON
-output_path = Path('src/data/dashboard.json')
+output_path = PROJECT_ROOT / 'src' / 'data' / 'dashboard.json'
 output_path.parent.mkdir(parents=True, exist_ok=True)
 with open(output_path, 'w', encoding='utf-8') as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
