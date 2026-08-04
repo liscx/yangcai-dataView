@@ -18,6 +18,7 @@ import TopTable from './components/TopTable.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
 
 const appRef = ref(null)
+const scaleStageRef = ref(null)
 const scaleRef = ref(null)
 const password = ref('')
 const errorMsg = ref('')
@@ -69,22 +70,23 @@ provide('authed', authed)
 
 function updateScale() {
   scaleRatio.value = window.innerWidth / 1920
-  // 清除 body 固定高度，让 fitScaleHeight 重新计算
-  document.body.style.height = ''
-  fitScaleHeight()
+  nextTick(() => fitScaleHeight())
 }
 
+let fitHeightFrame = 0
+
 function fitScaleHeight() {
-  if (!scaleRef.value) return
-  scaleRef.value.style.height = 'auto'
-  requestAnimationFrame(() => {
-    if (!scaleRef.value) return
-    // 视觉高度 = 内容实际高度 × scale
+  if (!scaleRef.value || !scaleStageRef.value) return
+  cancelAnimationFrame(fitHeightFrame)
+  fitHeightFrame = requestAnimationFrame(() => {
+    if (!scaleRef.value || !scaleStageRef.value) return
+    // 内层保持 1920px 画布和 transform 缩放，外层只负责占用缩放后的视觉高度
     const rect = scaleRef.value.getBoundingClientRect()
-    // 让 body 的可滚动区域 = 视觉高度
-    document.body.style.height = rect.height + 'px'
+    scaleStageRef.value.style.height = `${Math.ceil(rect.height)}px`
   })
 }
+
+let scaleResizeObserver = null
 
 let clickCount = 0
 let clickTimer = null
@@ -146,14 +148,16 @@ onMounted(() => {
   nextTick(() => fitScaleHeight())
   // 监听内容尺寸变化
   if (scaleRef.value) {
-    const ro = new ResizeObserver(() => fitScaleHeight())
-    ro.observe(scaleRef.value)
+    scaleResizeObserver = new ResizeObserver(() => fitScaleHeight())
+    scaleResizeObserver.observe(scaleRef.value)
   }
 })
 
 onUnmounted(() => {
   unbindActivity()
   window.removeEventListener('resize', updateScale)
+  cancelAnimationFrame(fitHeightFrame)
+  scaleResizeObserver?.disconnect()
 })
 </script>
 
@@ -177,8 +181,9 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
-  <main ref="appRef" class="shell" :class="{ blurred: !authed }">
+  <div ref="scaleStageRef" class="scale-stage">
+    <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
+    <main ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- Hero + KPI 合并行 -->
     <div class="hero-kpi-row">
       <HeroSection
@@ -259,11 +264,23 @@ onUnmounted(() => {
 
     <!-- 底部 -->
     <DashboardFooter />
-  </main>
+    </main>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.scale-stage {
+  position: relative;
+  width: 100%;
+}
+
+.page-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .auth-overlay {
   position: fixed;
   inset: 0;
