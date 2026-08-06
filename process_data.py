@@ -144,6 +144,17 @@ if len(orders) > 0:
     # 保存专区列表到全局数据
     month_trend_zones = zones_sorted
 
+    # ============ 订单日历数据（按天汇总 - 覆盖全部历史数据） ============
+    daily_summary = orders.groupby(orders['日期'].dt.strftime('%Y-%m-%d')).agg(
+        amount=('订单金额（元）', 'sum'),
+        count=('订单号', 'count')
+    ).reset_index()
+    calendar_data_list = [
+        [row['日期'], round(row['amount'], 2), int(row['count'])]
+        for _, row in daily_summary.iterrows()
+    ]
+
+
     # ============ 本月新上量专区（基于所有历史数据） ============
     # 获取本月有订单的专区
     current_month_zones = orders[orders['日期'] >= cur_month_start]['专区名称'].unique()
@@ -166,6 +177,7 @@ if len(orders) > 0:
 else:
     month_trend_list = []
     month_trend_zones = []
+    calendar_data_list = []
     new_zones_list = []
 
 # ============ 近一周趋势（按专区拆分） ============
@@ -305,6 +317,7 @@ result = {
     "supplierTypes": supplier_types_list,
     "monthTrend": month_trend_list,
     "monthTrendZones": month_trend_zones,
+    "calendarData": calendar_data_list,
     "weekTrend": week_trend_list,
     "weekTrendZones": week_trend_zones,
     "statusRank": status_rank_list,

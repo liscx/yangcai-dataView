@@ -182,6 +182,7 @@ onUnmounted(() => {
         <TrendCharts
           :month-trend="DATA.monthTrend"
           :month-trend-zones="DATA.monthTrendZones"
+          :calendar-data="DATA.calendarData"
           :week-trend="DATA.weekTrend"
           :week-trend-zones="DATA.weekTrendZones"
         />

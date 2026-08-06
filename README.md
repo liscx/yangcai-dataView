@@ -21,11 +21,10 @@ AI_MODEL=gpt-4o-mini
 
 ## 更新看板数据
 
-将 Excel 放在以下任一位置，然后执行脚本：
+脚本会按以下顺序查找 Excel，然后生成看板数据：
 
-1. `Data/source_data.xlsx`
-2. 上级目录的 `Data/source_data.xlsx`（兼容旧目录）
-3. `src/assets/阳光优采交易订单.xlsx`
+1. 上级目录的 `Data/source_data.xlsx`
+2. `src/assets/阳光优采交易订单.xlsx`
 
 ```bash
 python process_data.py
