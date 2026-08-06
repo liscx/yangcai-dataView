@@ -289,7 +289,7 @@ function switchCard(targetCard) {
     x: 0,
     y: 0,
     opacity: 1,
-    duration: 1,
+    duration: 0.6,
     ease: 'power1.out'
   })
 }
@@ -644,8 +644,8 @@ function initCalendarChart() {
       splitLine: {
         show: true,
         lineStyle: {
-          color: 'rgba(148, 163, 184, 0.15)',
-          width: 1,
+          color: '#fc9802',
+          width: 1.5,
           type: 'solid'
         }
       },
