@@ -636,24 +636,35 @@ function initCalendarChart() {
       right: 14,
       bottom: 12,
       range: [start, end],
-      cellSize: [14, 14],
+      cellSize: [16, 16],
+      splitLine: {
+        show: true,
+        lineStyle: {
+          color: 'rgba(148, 163, 184, 0.15)',
+          width: 1,
+          type: 'solid'
+        }
+      },
       itemStyle: {
-        borderWidth: 2,
-        borderColor: '#ffffff',
-        borderRadius: 2
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.6)',
+        borderRadius: 3,
+        shadowBlur: 1,
+        shadowColor: 'rgba(0, 0, 0, 0.04)'
       },
       yearLabel: { show: false },
       dayLabel: {
         firstDay: 1,
         nameMap: ['日', '一', '二', '三', '四', '五', '六'],
         color: '#94a3b8',
-        fontSize: 10
+        fontSize: 10,
+        fontWeight: 500
       },
       monthLabel: {
         nameMap: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
         color: '#334155',
         fontSize: 11,
-        fontWeight: 'bold'
+        fontWeight: 600
       }
     },
     series: [
@@ -898,6 +909,7 @@ onUnmounted(() => {
                 show-adjacent-months
                 color="primary"
                 locale="zh-CN"
+                hide-header
                 @update:model-value="onDateRangeUpdate"
               />
             </v-menu>
@@ -1334,5 +1346,62 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Vuetify Date Picker 样式优化 */
+:deep(.v-date-picker) {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+:deep(.v-date-picker-controls) {
+  flex-direction: row-reverse !important;
+}
+
+:deep(.v-date-picker-controls .v-date-picker-header__text) {
+  flex-direction: row-reverse !important;
+}
+
+:deep(.v-date-picker-table) {
+  padding: 4px 8px 8px !important;
+}
+
+:deep(.v-date-picker-table th) {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748b !important;
+  padding: 8px 0 !important;
+}
+
+:deep(.v-date-picker-table .v-btn) {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+:deep(.v-date-picker-table .v-btn--variant-flat) {
+  background: transparent !important;
+}
+
+:deep(.v-date-picker-table .v-btn--active) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4) !important;
+}
+
+:deep(.v-date-picker-table .v-btn:hover:not(.v-btn--active)) {
+  background: rgba(102, 126, 234, 0.08) !important;
+  color: #667eea !important;
+}
+
+:deep(.v-date-picker-years) {
+  padding: 8px !important;
+}
+
+:deep(.v-date-picker-years .v-btn) {
+  border-radius: 8px !important;
+  font-size: 14px !important;
 }
 </style>
