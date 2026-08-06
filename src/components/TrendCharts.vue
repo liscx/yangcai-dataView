@@ -46,21 +46,21 @@ const DATA_MAX_DATE = computed(() => {
   if (!props.calendarData || !props.calendarData.length) return '2026-07-31'
   return props.calendarData[props.calendarData.length - 1][0]
 })
-// 自定义日期区间（默认覆盖全部数据范围）
+// 自定义日期区间（默认全部数据范围）
 const calendarStart = ref('')
 const calendarEnd   = ref('')
 
-// Date picker range model (Vuetify range mode needs all dates in range for highlighting)
-const dateMenuOpen = ref(false)
-let suppressWatcher = false
-
-// 数据加载后初始化日期区间为全部数据范围
+// 数据加载后初始化日期区间
 watch(() => props.calendarData, (data) => {
   if (data && data.length && !calendarStart.value) {
     calendarStart.value = data[0][0]
     calendarEnd.value = data[data.length - 1][0]
   }
 }, { immediate: true })
+
+// Date picker range model (Vuetify range mode needs all dates in range for highlighting)
+const dateMenuOpen = ref(false)
+let suppressWatcher = false
 function buildDateRange(start, end) {
   const dates = []
   const cur = new Date(start + 'T00:00:00')
@@ -576,6 +576,7 @@ function initCalendarChart() {
   const option = {
     tooltip: {
       trigger: 'item',
+      appendToBody: true,
       backgroundColor: 'rgba(255, 255, 255, 0.96)',
       borderColor: '#e5e7eb',
       borderWidth: 1,
@@ -594,8 +595,11 @@ function initCalendarChart() {
           const mt = monthTotals[ym] || { amount: 0, count: 0 }
           const [y, m] = ym.split('-')
           const monthLabel = `${y}年${parseInt(m)}月`
+          const weekDays = ['日', '一', '二', '三', '四', '五', '六']
+          const dt = new Date(dateStr + 'T00:00:00')
+          const weekDay = weekDays[dt.getDay()]
           return `
-            <div style="font-weight:700;margin-bottom:4px;color:#1e293b;font-size:13px;">📅 ${dateStr}</div>
+            <div style="font-weight:700;margin-bottom:4px;color:#1e293b;font-size:13px;">📅 ${dateStr} 周${weekDay}</div>
             <div style="color:#475569;line-height:1.7;">
               当日单量：<strong style="color:#2563eb;">${count} 单</strong><br/>
               当日金额：<strong style="color:#7c3aed;">¥${fmtActual(amount)}</strong>
@@ -867,11 +871,6 @@ onUnmounted(() => {
             <span class="legend-text">{{ zone.name }}</span>
           </div>
         </div>
-
-        <!-- 底部叠层提示标识（当作为底层卡片时可见） -->
-        <div v-if="activeCard !== 'trend'" class="back-card-hint">
-          <span>点击切换置顶: 近半年订单趋势</span>
-        </div>
       </article>
 
       <!-- 堆叠卡片 2：订单日历（全量历史数据热力图） -->
@@ -888,7 +887,7 @@ onUnmounted(() => {
             <v-menu
               v-model="dateMenuOpen"
               :close-on-content-click="false"
-              location="bottom end"
+              location="bottom"
             >
               <template #activator="{ props: menuProps }">
                 <v-btn
@@ -970,11 +969,6 @@ onUnmounted(() => {
             <span class="chip-label">💰 区间总金额</span>
             <span class="chip-val">¥{{ fmtActual(rangeTotalAmount) }}</span>
           </div>
-        </div>
-
-        <!-- 底部叠层提示标识（当作为底层卡片时可见） -->
-        <div v-if="activeCard !== 'calendar'" class="back-card-hint">
-          <span>点击切换置顶: 订单日历</span>
         </div>
       </article>
     </div>
@@ -1130,13 +1124,23 @@ onUnmounted(() => {
 
 /* 日期选择触发按钮 */
 .date-trigger-btn {
-  font-size: 12px !important;
+  font-size: 13px !important;
   text-transform: none !important;
   letter-spacing: 0 !important;
   font-weight: 500 !important;
   color: #475569 !important;
   border-color: #e2e8f0 !important;
   background: #f8fafc !important;
+  height: 32px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.date-trigger-btn:hover {
+  border-color: #667eea !important;
+  color: #667eea !important;
+  background: #f0f4ff !important;
 }
 
 /* 图表容器尺寸 */
@@ -1197,14 +1201,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 4px;
   padding: 6px 0;
+  width: 50%;
+  margin: 0 auto;
 }
 
 .calendar-legend .legend-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   cursor: pointer;
   transition: opacity 0.2s;
 }
@@ -1214,14 +1220,14 @@ onUnmounted(() => {
 }
 
 .calendar-legend .legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
   flex-shrink: 0;
 }
 
 .calendar-legend .legend-text {
-  font-size: 11px;
+  font-size: 10px;
   color: #64748b;
   white-space: nowrap;
 }
@@ -1243,19 +1249,6 @@ onUnmounted(() => {
 }
 
 /* 底部底层卡片提示 */
-.back-card-hint {
-  position: absolute;
-  bottom: 6px;
-  right: 12px;
-  font-size: 11px;
-  color: #3b82f6;
-  font-weight: 600;
-  background: rgba(239, 246, 255, 0.9);
-  padding: 2px 8px;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
 /* 普通 Panel 基础样式 */
 .panel {
   display: flex;
