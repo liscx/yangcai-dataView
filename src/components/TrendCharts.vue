@@ -14,6 +14,7 @@ const props = defineProps({
 // Refs for elements and chart instances
 const monthChartRef = ref(null)
 const calendarChartRef = ref(null)
+const calendarScrollWrapRef = ref(null)
 const weekChartRef = ref(null)
 
 const monthChart = shallowRef(null)
@@ -546,7 +547,7 @@ function initCalendarChart() {
 
   // Resize the container to the computed canvas width so echarts draws at full size
   calendarChartRef.value.style.width = canvasWidth + 'px'
-  const chart = echarts.init(calendarChartRef.value, null, { renderer: 'canvas', width: canvasWidth, height: 230 })
+  const chart = echarts.init(calendarChartRef.value, null, { renderer: 'canvas', width: canvasWidth, height: 360 })
 
   const formattedData = rawData.map(item => [
     item[0],
@@ -620,7 +621,7 @@ function initCalendarChart() {
           ],
     },
     calendar: {
-      top: 20,
+      top: 40,
       left: 40,
       right: 14,
       bottom: 12,
@@ -656,6 +657,12 @@ function initCalendarChart() {
 
   chart.setOption(option)
   calendarChart.value = chart
+
+  // 默认滚到最右侧（最新数据）
+  nextTick(() => {
+    const wrap = calendarScrollWrapRef.value
+    if (wrap) wrap.scrollLeft = wrap.scrollWidth
+  })
 }
 
 function initWeekChart() {
@@ -792,9 +799,7 @@ onUnmounted(() => {
         @click="activeCard !== 'trend' && switchCard('trend')"
       >
         <div class="panel-head">
-          <div class="title-with-badge">
-            <h2>近半年订单趋势</h2>
-          </div>
+          <h2>近半年订单趋势</h2>
           <div class="head-right">
             <button
               v-if="canToggle && activeCard === 'trend'"
@@ -856,9 +861,7 @@ onUnmounted(() => {
         @click="activeCard !== 'calendar' && switchCard('calendar')"
       >
         <div class="panel-head">
-          <div class="title-with-badge">
-            <h2>订单日历</h2>
-          </div>
+          <h2>订单日历</h2>
           <div class="head-right">
             <!-- 日期区间选择器 -->
             <v-menu
@@ -918,7 +921,7 @@ onUnmounted(() => {
         </div>
 
         <!-- 横向可滚动包裹层 -->
-        <div class="calendar-scroll-wrap">
+        <div ref="calendarScrollWrapRef" class="calendar-scroll-wrap">
           <div ref="calendarChartRef" class="calendar-chart-inner"></div>
         </div>
 
@@ -1003,7 +1006,7 @@ onUnmounted(() => {
 .stacked-card-wrapper {
   position: relative;
   width: 100%;
-  height: 480px;
+  height: 535px;
 }
 
 /* 堆叠面板卡片: 宽度/高度计算偏移，使总投影面积精准等于父容器(100% * 100%) */
@@ -1068,12 +1071,6 @@ onUnmounted(() => {
   opacity: 0.45;
 }
 
-/* 标题与 Badge */
-.title-with-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
 
 /* 卡片切换 Tab */
@@ -1123,12 +1120,12 @@ onUnmounted(() => {
 /* 图表容器尺寸 */
 .total-chart {
   width: 100%;
-  height: 380px;
+  height: 420px;
 }
 
 .zone-chart {
   width: 100%;
-  height: 300px;
+  height: 380px;
 }
 
 /* 日历横向可滚动容器 */
@@ -1154,7 +1151,7 @@ onUnmounted(() => {
 
 /* ECharts 日历画布 — 宽度由 JS 动态计算写入 style */
 .calendar-chart-inner {
-  height: 230px;
+  height: 360px;
   /* min-width 防止宽度小于父容器时 ECharts 压缩 */
   min-width: 400px;
   display: block;
