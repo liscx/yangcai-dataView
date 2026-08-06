@@ -37,16 +37,30 @@ const legendData = ref([])
 
 // Calendar Chart States
 const calendarMetric = ref('count') // 'count' (按单量) | 'amount' (按金额)
-// 自定义日期区间
-const calendarStart = ref('2025-08-01')
-const calendarEnd   = ref('2026-07-31')
-// 数据中最早 / 最晚日期（用于限制 input 范围）
-const DATA_MIN_DATE = '2025-08-01'
-const DATA_MAX_DATE = '2026-07-31'
+// 数据中最早 / 最晚日期（从 calendarData 动态计算）
+const DATA_MIN_DATE = computed(() => {
+  if (!props.calendarData || !props.calendarData.length) return '2025-08-01'
+  return props.calendarData[0][0]
+})
+const DATA_MAX_DATE = computed(() => {
+  if (!props.calendarData || !props.calendarData.length) return '2026-07-31'
+  return props.calendarData[props.calendarData.length - 1][0]
+})
+// 自定义日期区间（默认覆盖全部数据范围）
+const calendarStart = ref('')
+const calendarEnd   = ref('')
 
 // Date picker range model (Vuetify range mode needs all dates in range for highlighting)
 const dateMenuOpen = ref(false)
 let suppressWatcher = false
+
+// 数据加载后初始化日期区间为全部数据范围
+watch(() => props.calendarData, (data) => {
+  if (data && data.length && !calendarStart.value) {
+    calendarStart.value = data[0][0]
+    calendarEnd.value = data[data.length - 1][0]
+  }
+}, { immediate: true })
 function buildDateRange(start, end) {
   const dates = []
   const cur = new Date(start + 'T00:00:00')
@@ -60,7 +74,7 @@ function buildDateRange(start, end) {
   }
   return dates
 }
-const dateRange = ref(buildDateRange(calendarStart.value, calendarEnd.value))
+const dateRange = ref(calendarStart.value ? buildDateRange(calendarStart.value, calendarEnd.value) : [])
 watch([calendarStart, calendarEnd], ([s, e]) => {
   if (suppressWatcher) return
   dateRange.value = buildDateRange(s, e)
@@ -149,6 +163,7 @@ const filteredCalendarData = computed(() => {
   if (!props.calendarData) return []
   const s = calendarStart.value
   const e = calendarEnd.value
+  if (!s || !e) return props.calendarData
   return props.calendarData.filter(item => item[0] >= s && item[0] <= e)
 })
 
@@ -234,56 +249,49 @@ const monthlyTotals = computed(() => {
   return map
 })
 
-// GSAP Physics Card Stack Swap Animation
+// GSAP Card Stack Swap — order follows actual stacking position
 function switchCard(targetCard) {
   if (isAnimating.value || activeCard.value === targetCard) return
   isAnimating.value = true
 
-  const frontEl = activeCard.value === 'trend' ? trendCardRef.value : calendarCardRef.value
-  const backEl = activeCard.value === 'trend' ? calendarCardRef.value : trendCardRef.value
+  // Determine which card is on top and which is behind
+  const isTrendFront = activeCard.value === 'trend'
+  const topEl    = isTrendFront ? trendCardRef.value : calendarCardRef.value
+  const behindEl = isTrendFront ? calendarCardRef.value : trendCardRef.value
 
   const tl = gsap.timeline({
     onComplete: () => {
       activeCard.value = targetCard
-      gsap.set([frontEl, backEl], { clearProps: 'transform,zIndex,opacity' })
+      gsap.set([topEl, behindEl], { clearProps: 'all' })
       nextTick(() => {
         monthChart.value?.resize()
+        calendarChart.value?.resize()
         isAnimating.value = false
       })
     }
   })
 
-  // 1. Move front card down-left with a subtle physical tilt (-2.5 deg)
-  tl.to(frontEl, {
-    x: -85,
-    y: 55,
-    rotation: -2.5,
-    duration: 0.28,
-    ease: 'power2.in'
+  // 1. Top card slides away
+  tl.to(topEl, {
+    x: -80,
+    y: 30,
+    rotation: -2,
+    opacity: 0,
+    duration: 0.3,
+    ease: 'power1.in'
   })
 
-  // 2. Mid-air z-index swap
-  tl.set(frontEl, { zIndex: 1 })
-  tl.set(backEl, { zIndex: 2 })
+  // 2. Swap z-index AFTER top card has left
+  tl.set(behindEl, { zIndex: 2 })
 
-  // 3. Former front card glides smoothly back into the offset position (x: 14, y: 12)
-  tl.to(frontEl, {
-    x: 14,
-    y: 12,
-    rotation: 0,
-    opacity: 0.86,
-    duration: 0.28,
-    ease: 'power2.out'
-  })
-
-  // 4. Former back card glides forward into the front position (x: 0, y: 0)
-  tl.to(backEl, {
+  // 3. Behind card moves into front position (1s)
+  tl.to(behindEl, {
     x: 0,
     y: 0,
     opacity: 1,
-    duration: 0.35,
-    ease: 'power2.out'
-  }, '-=0.25')
+    duration: 1,
+    ease: 'power1.out'
+  })
 }
 
 function createAxisTooltip() {
@@ -529,6 +537,8 @@ function initMonthChart() {
 
 function initCalendarChart() {
   if (!calendarChartRef.value) return
+  if (!calendarStart.value || !calendarEnd.value) return
+
   calendarChart.value?.dispose()
 
   const start = calendarStart.value
@@ -1031,6 +1041,7 @@ onUnmounted(() => {
 .panel-card.is-front {
   top: 0;
   left: 0;
+  transform: translate(0, 0);
   z-index: 2;
   opacity: 1;
   box-shadow: 0 10px 28px rgba(26, 35, 50, 0.12), 0 2px 6px rgba(37, 99, 235, 0.08);
@@ -1038,14 +1049,15 @@ onUnmounted(() => {
 
 /* 置底底层卡片: 偏移 (14px, 12px)，露右侧和下侧边缘，营造沉浸式堆叠立体感 */
 .panel-card.is-back {
-  top: 12px;
-  left: 14px;
+  top: 0;
+  left: 0;
+  transform: translate(14px, 12px);
   z-index: 1;
   opacity: 0.92;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(26, 35, 50, 0.08);
   border-color: rgba(37, 99, 235, 0.35);
-  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  background: var(--panel, rgba(255, 255, 255, 0.92));
 }
 
 .panel-card.is-back .panel-head,
@@ -1054,9 +1066,7 @@ onUnmounted(() => {
 .panel-card.is-back .calendar-chart,
 .panel-card.is-back .custom-legend,
 .panel-card.is-back .calendar-footer-summary {
-  opacity: 0.18;
   pointer-events: none;
-  transition: opacity 0.3s ease;
 }
 
 .panel-card.is-back:hover {
@@ -1249,9 +1259,7 @@ onUnmounted(() => {
 }
 
 .panel-head h2 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 18px;
 }
 
 .head-right {
