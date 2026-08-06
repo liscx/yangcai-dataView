@@ -205,7 +205,7 @@ const calendarLegendPieces = computed(() => {
         { label: '无交易', color: '#f1f5f9' },
       ]
     : [
-        { label: '≥5万', color: '#6d28d9' },
+        { label: '≥5万', color: '#ea580c' },
         { label: '2万-5万', color: '#7c3aed' },
         { label: '8千-2万', color: '#8b5cf6' },
         { label: '2千-8千', color: '#a78bfa' },
@@ -626,7 +626,7 @@ function initCalendarChart() {
             { value: 0, color: '#f1f5f9' },
           ]
         : [
-            { min: 50000, color: '#6d28d9' },
+            { min: 50000, color: '#ea580c' },
             { min: 20000, max: 49999.99, color: '#7c3aed' },
             { min: 8000, max: 19999.99, color: '#8b5cf6' },
             { min: 2000, max: 7999.99, color: '#a78bfa' },
