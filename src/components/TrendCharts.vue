@@ -8,7 +8,8 @@ const props = defineProps({
   monthTrendZones: Array,
   calendarData: Array,
   weekTrend: Array,
-  weekTrendZones: Array
+  weekTrendZones: Array,
+  monthlySummary: Array
 })
 
 // Refs for elements and chart instances
@@ -250,6 +251,61 @@ const monthlyTotals = computed(() => {
 })
 
 // GSAP Card Stack Swap — order follows actual stacking position
+
+// 订单日历卡片的「已复制」高亮状态
+const calendarCopied = ref(false)
+
+// 复制纯文本到剪贴板（兼容旧浏览器降级）
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+    const ta = document.createElement('textarea')
+    ta.value = text
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    ta.style.left = '-9999px'
+    document.body.appendChild(ta)
+    ta.select()
+    const ok = document.execCommand('copy')
+    document.body.removeChild(ta)
+    return ok
+  } catch (e) {
+    return false
+  }
+}
+
+// 金额格式化：¥ + 千分位 + 两位小数，如 ¥32.00 / ¥1,432.64 / ¥500,760.38
+function formatAmountYuan(n) {
+  return '¥' + Number(n).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
+// 构建订单日历卡片复制内容（TSV：Tab 分列 + 换行分行）
+// 格式：月份 / 销售额（元）/ 订单数
+async function handleCalendarCopy() {
+  const data = props.monthlySummary || []
+  const headers = ['月份', '销售额（元）', '订单数']
+  const lines = [headers.join('\t')]
+  for (const row of data) {
+    lines.push([
+      row.月份,
+      formatAmountYuan(row.amount),
+      row.count
+    ].join('\t'))
+  }
+  const tsv = lines.join('\n')
+  const ok = await copyToClipboard(tsv)
+  if (ok) {
+    calendarCopied.value = true
+    setTimeout(() => { calendarCopied.value = false }, 1500)
+  }
+}
+
 function switchCard(targetCard) {
   if (isAnimating.value || activeCard.value === targetCard) return
   isAnimating.value = true
@@ -881,7 +937,25 @@ onUnmounted(() => {
         @click="activeCard !== 'calendar' && switchCard('calendar')"
       >
         <div class="panel-head">
-          <h2>订单日历</h2>
+          <div class="head-left">
+            <h2>订单日历</h2>
+            <button
+              class="copy-btn"
+              :class="{ 'is-copied': calendarCopied }"
+              :title="calendarCopied ? '已复制' : '复制月份小结到剪贴板'"
+              @click.stop="handleCalendarCopy"
+            >
+              <!-- 复制图标 (clipboard) -->
+              <svg v-if="!calendarCopied" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <!-- 已复制：对勾 -->
+              <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+          </div>
           <div class="head-right">
             <!-- 日期区间选择器 -->
             <v-menu
@@ -1271,6 +1345,48 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 标题 + 复制按钮的左侧容器（订单日历卡片用） */
+.head-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* 复制按钮 — 小 icon 按钮，hover 高亮、is-copied 变绿 */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  background: #f1f5f9;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #64748b;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.copy-btn:active {
+  transform: scale(0.92);
+}
+
+.copy-btn.is-copied {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.copy-btn svg {
+  display: block;
 }
 
 .toggle-btn {

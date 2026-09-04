@@ -14,6 +14,7 @@ import SupplierStructure from './components/SupplierStructure.vue'
 import AmountBands from './components/AmountBands.vue'
 import SupplierContribution from './components/SupplierContribution.vue'
 import TopTable from './components/TopTable.vue'
+import TopStackCards from './components/TopStackCards.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
 
 const appRef = ref(null)
@@ -185,6 +186,7 @@ onUnmounted(() => {
           :calendar-data="DATA.calendarData"
           :week-trend="DATA.weekTrend"
           :week-trend-zones="DATA.weekTrendZones"
+          :monthly-summary="DATA.monthlySummary"
         />
       </div>
 
@@ -203,9 +205,9 @@ onUnmounted(() => {
 
     <!-- 底部表格区域 -->
     <section class="grid-bottom">
-      <TopTable
-        title="采购企业 top10"
-        :data="DATA.buyerRank"
+      <TopStackCards
+        :buyer-data="DATA.buyerRank"
+        :supplier-data="DATA.supplierRank"
       />
       <TopTable
         title="电商供应商 top10"
@@ -377,5 +379,6 @@ onUnmounted(() => {
   gap: 16px;
   margin-top: 16px;
 }
+
 
 </style>
