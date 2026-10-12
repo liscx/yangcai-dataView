@@ -50,7 +50,7 @@ const cards = computed(() => [
     label: '采购企业数',
     value: props.kpis.buyerCount || 0,
     format: 'number',
-    hint: '产生订单的企业数量',
+    hint: `产生订单的采购人：${props.kpis.purchaserCount || 0}个`,
     color: '#7c3aed'
   },
   {
@@ -89,10 +89,10 @@ const cards = computed(() => [
     color: '#b7791f'
   },
   {
-    label: '供应商数',
+    label: '有订单的供应商数',
     value: props.kpis.supplierCount || 0,
     format: 'number',
-    hint: '产生订单的供应商数量',
+    hint: `电商：${props.kpis.ecommerceSupplierCount || 0}家 本地：${props.kpis.localSupplierCount || 0}家`,
     color: '#7c3aed'
   },
   {

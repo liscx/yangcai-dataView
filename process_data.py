@@ -85,6 +85,9 @@ zone_count = orders['专区名称'].nunique()
 # 采购企业数
 buyer_count = orders['采购企业'].nunique()
 
+# 采购人(下单个人)数
+purchaser_count = orders['采购人'].nunique()
+
 # 供应商数
 supplier_count = orders['供应商'].nunique()
 
@@ -322,6 +325,10 @@ local_suppliers['amount'] = local_suppliers['amount'].round(2)
 local_suppliers = local_suppliers.sort_values('amount', ascending=False)
 local_suppliers_list = local_suppliers.rename(columns={'供应商': 'name'}).to_dict('records')
 
+# 电商/本地供应商数(有订单)
+ecommerce_supplier_count = ecommerce['供应商'].nunique()
+local_supplier_count = local['供应商'].nunique()
+
 # ============ 集中度指标 ============
 buyer_top10_share = round(buyer_rank.head(10)['amount'].sum() / total_amount, 6) if total_amount > 0 else 0
 supplier_top10_share = round(supplier_rank.head(10)['amount'].sum() / total_amount, 6) if total_amount > 0 else 0
@@ -341,7 +348,10 @@ result = {
         "todayAmount": today_amount,
         "todayOrders": today_count,
         "buyerCount": buyer_count,
+        "purchaserCount": purchaser_count,
         "supplierCount": supplier_count,
+        "ecommerceSupplierCount": ecommerce_supplier_count,
+        "localSupplierCount": local_supplier_count,
         "curMonthAmount": cur_month_amount,
         "curMonthOrders": cur_month_count,
         "prevMonthAmount": prev_month_amount,

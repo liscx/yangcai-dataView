@@ -27,6 +27,7 @@ const authed = ref(false)
 const scaleRatio = ref(window.innerWidth / 1920)
 const showAiInsight = ref(false)
 const dashboardReady = ref(false)
+const entryMethod = ref('')  // 记录本次进入方式：'password' | 'logo-backdoor'
 
 provide('authed', authed)
 
@@ -57,6 +58,7 @@ function onLogoClick() {
   clickCount++
   clearTimeout(clickTimer)
   if (clickCount >= 4) {
+    entryMethod.value = 'logo-backdoor'
     authed.value = true
     clickCount = 0
     return
@@ -66,11 +68,43 @@ function onLogoClick() {
 
 function checkPassword() {
   if (password.value === PASS) {
+    entryMethod.value = 'password'
     authed.value = true
     errorMsg.value = ''
   } else {
     errorMsg.value = '密码错误，请重试'
     password.value = ''
+  }
+}
+
+// 访问者 IP / 客户端上下文记录：
+// 登录成功后（包括密码 + logo 4 连击后门两条路径）触发，
+// 让 Vite dev middleware 拿到访问者真实 IP 并 append 到 src/assets/visitor_log_YYYY-MM-DD.csv。
+async function recordVisit(entry) {
+  try {
+    // 1. 先问后端要 IP
+    const ipRes = await fetch('/api/client-ip')
+    const {ip} = await ipRes.json()
+
+    // 2. 带上前端上下文 POST 给后端写日志
+    await fetch('/api/log-visit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        time: new Date().toISOString(),
+        ip,
+        path: window.location.pathname,
+        ua: navigator.userAgent,
+        referer: document.referrer,
+        entry,                                                // 'password' | 'logo-backdoor'
+        screen: `${window.screen.width}x${window.screen.height}`,
+        lang: navigator.language,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+      })
+    })
+  } catch (err) {
+    // 静默失败 — 不影响正常登录
+    console.warn('[visitor-log] failed:', err)
   }
 }
 
@@ -98,6 +132,8 @@ watch(authed, val => {
     dashboardReady.value = true
     bindActivity()
     nextTick(() => ScrollTrigger.refresh())
+    // 进入成功（密码 / logo 4 连击后门），向 Vite middleware 报告本次访问
+    recordVisit(entryMethod.value || 'unknown')
   } else {
     unbindActivity()
     password.value = ''
