@@ -856,11 +856,27 @@ onMounted(() => {
   }
 
   window.addEventListener('resize', handleResize)
+
+  // 监听图表容器尺寸变化（卡片被网格拉伸 / 图表切换时高度变化），让 ECharts 跟随重绘
+  setupChartResizeObserver()
 })
+
+// 图表容器尺寸观察器：容器高度因 flex 拉伸变化时，调用对应 ECharts 实例 resize
+let chartResizeObserver = null
+function setupChartResizeObserver() {
+  if (typeof ResizeObserver === 'undefined') return
+  chartResizeObserver = new ResizeObserver(() => {
+    monthChart.value?.resize()
+    weekChart.value?.resize()
+  })
+  if (monthChartRef.value) chartResizeObserver.observe(monthChartRef.value)
+  if (weekChartRef.value) chartResizeObserver.observe(weekChartRef.value)
+}
 
 onUnmounted(() => {
   chartsMounted = false
   window.removeEventListener('resize', handleResize)
+  chartResizeObserver?.disconnect()
   animationContext?.revert()
   monthChart.value?.dispose()
   calendarChart.value?.dispose()
@@ -1092,11 +1108,12 @@ onUnmounted(() => {
   gap: 16px;
 }
 
-/* 堆叠卡片容器: 尺寸严格保持与单卡片一致，禁止溢出外部 boundaries */
+/* 堆叠卡片容器: 去掉写死高度，改为拉伸填满同行网格轨道，
+   与左列「专区排行榜」、右列「供应商类型结构」共用同一行高实现顶/底对齐 */
 .stacked-card-wrapper {
   position: relative;
   width: 100%;
-  height: 535px;
+  min-height: 0;
 }
 
 /* 堆叠面板卡片: 宽度/高度计算偏移，使总投影面积精准等于父容器(100% * 100%) */
@@ -1217,15 +1234,13 @@ onUnmounted(() => {
   background: #f0f4ff !important;
 }
 
-/* 图表容器尺寸 */
-.total-chart {
-  width: 100%;
-  height: 420px;
-}
-
+/* 图表容器尺寸：改为 flex 拉伸填满卡片剩余高度，
+   避免趋势卡片被拉伸后图表下方出现空白 */
+.total-chart,
 .zone-chart {
   width: 100%;
-  height: 380px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* 日历横向可滚动容器 */

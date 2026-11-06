@@ -51,7 +51,7 @@ function getTagStyle(index) {
   flex-wrap: wrap;
   align-content: flex-start;
   gap: 8px;
-  max-height: 190px;
+  max-height: 400px;
   overflow-y: auto;
   padding-right: 4px;
   padding-bottom: 10px;

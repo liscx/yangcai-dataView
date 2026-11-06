@@ -195,7 +195,7 @@ async function startAnalysis(forceRefresh = false) {
   } catch (err) {
     if (err.name !== 'AbortError') {
       console.error('AI 分析失败:', err)
-      errorMsg.value = '分析失败，请重试'
+      errorMsg.value = '没token了……'
     }
   } finally {
     analyzing.value = false
@@ -560,7 +560,7 @@ onUnmounted(() => {
 }
 
 .error-text {
-  color: #ef4444;
+  color: #000000;
   font-size: 13px;
 }
 

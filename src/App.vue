@@ -8,13 +8,14 @@ import KpiCards from './components/KpiCards.vue'
 import AiInsightBar from './components/AiInsightBar.vue'
 import ZoneRanking from './components/ZoneRanking.vue'
 import OrderStatus from './components/OrderStatus.vue'
-import ProcurementFocus from './components/ProcurementFocus.vue'
+import CategoryTop10 from './components/CategoryTop10.vue'
 import TrendCharts from './components/TrendCharts.vue'
 import SupplierStructure from './components/SupplierStructure.vue'
 import AmountBands from './components/AmountBands.vue'
 import SupplierContribution from './components/SupplierContribution.vue'
-import TopTable from './components/TopTable.vue'
 import TopStackCards from './components/TopStackCards.vue'
+import SupplierTypeStackCards from './components/SupplierTypeStackCards.vue'
+import ProductPurchaseTop10 from './components/ProductPurchaseTop10.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
 
 const appRef = ref(null)
@@ -207,11 +208,12 @@ onUnmounted(() => {
     <section class="grid">
       <!-- 左列 -->
       <div class="column-stack column-left">
-        <ZoneRanking :zone-rank="DATA.zoneRank" />
-        <OrderStatus :status-rank="DATA.statusRank" />
-        <ProcurementFocus
+        <ZoneRanking
+          :zone-rank="DATA.zoneRank"
           :new-zones="DATA.newZones"
         />
+        <OrderStatus :status-rank="DATA.statusRank" />
+        <CategoryTop10 :data="DATA.categoryTop10" />
       </div>
 
       <!-- 中列 -->
@@ -245,13 +247,12 @@ onUnmounted(() => {
         :buyer-data="DATA.buyerRank"
         :supplier-data="DATA.supplierRank"
       />
-      <TopTable
-        title="电商供应商 top10"
-        :data="DATA.ecommerceSuppliers"
+      <SupplierTypeStackCards
+        :ecommerce-data="DATA.ecommerceSuppliers"
+        :local-data="DATA.localSuppliers"
       />
-      <TopTable
-        title="本地供应商 top10"
-        :data="DATA.localSuppliers"
+      <ProductPurchaseTop10
+        :data="DATA.productPurchase"
       />
     </section>
 

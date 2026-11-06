@@ -325,6 +325,42 @@ local_suppliers['amount'] = local_suppliers['amount'].round(2)
 local_suppliers = local_suppliers.sort_values('amount', ascending=False)
 local_suppliers_list = local_suppliers.rename(columns={'供应商': 'name'}).to_dict('records')
 
+# ============ 商品采购排行 ============
+# 行级（不按订单号去重）：每个订单行 = 一个商品采购明细。
+# 采购件数 = 商品数量 求和；金额 = 订单金额 按订单内行数均摊
+# （订单金额同一订单内恒定，均摊可避免多行订单重复计总额，保证与全屏总额对账一致）。
+_product_line = df.dropna(subset=['订单金额（元）']).copy()
+_product_line['line_amount'] = _product_line['订单金额（元）'] / _product_line.groupby('订单号')['订单号'].transform('size')
+_product_line['商品数量'] = _product_line['商品数量'].fillna(0)
+product_purchase = _product_line.groupby('商品名称').agg(
+    quantity=('商品数量', 'sum'),
+    amount=('line_amount', 'sum')
+).reset_index()
+product_purchase['amount'] = product_purchase['amount'].round(2)
+product_purchase = product_purchase[
+    product_purchase['商品名称'].notna() &
+    (product_purchase['商品名称'].astype(str).str.strip() != '')
+]
+product_purchase_list = product_purchase.rename(columns={'商品名称': 'name'}).to_dict('records')
+
+# ============ 三级类目排行（Top10） ============
+# 行级（不按订单号去重）：按「商品目录名称」(三级类目) 聚合。
+# 采购件数 = 商品数量 求和；金额 = 订单金额 按订单内行数均摊求和（与商品采购排行同口径，可对账）。
+category = _product_line.groupby('商品目录名称').agg(
+    count=('商品数量', 'sum'),
+    amount=('line_amount', 'sum')
+).reset_index()
+category['amount'] = category['amount'].round(2)
+category = category[
+    category['商品目录名称'].notna() &
+    (category['商品目录名称'].astype(str).str.strip() != '')
+]
+category = category.sort_values('amount', ascending=False).head(10)
+category_top10_list = [
+    {'name': r['商品目录名称'], 'amount': float(r['amount']), 'count': int(r['count'])}
+    for _, r in category.iterrows()
+]
+
 # 电商/本地供应商数(有订单)
 ecommerce_supplier_count = ecommerce['供应商'].nunique()
 local_supplier_count = local['供应商'].nunique()
@@ -373,6 +409,8 @@ result = {
     "supplierRank": supplier_rank_list,
     "ecommerceSuppliers": ecommerce_suppliers_list,
     "localSuppliers": local_suppliers_list,
+    "productPurchase": product_purchase_list,
+    "categoryTop10": category_top10_list,
     "newZones": new_zones_list
 }
 
