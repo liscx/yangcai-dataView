@@ -169,11 +169,14 @@ if len(orders) > 0:
     new_zones_list = []
     for zone_name in current_month_zones:
         if zone_name not in zones_with_history:
-            # 获取该专区本月的订单金额
-            zone_amount = orders[(orders['专区名称'] == zone_name) & (orders['日期'] >= cur_month_start)]['订单金额（元）'].sum()
+            # 获取该专区本月的订单数据（金额 + 订单数）
+            zone_orders = orders[(orders['专区名称'] == zone_name) & (orders['日期'] >= cur_month_start)]
+            zone_amount = zone_orders['订单金额（元）'].sum()
+            zone_count = int(zone_orders['订单号'].count())
             new_zones_list.append({
                 'name': zone_name,
-                'amount': round(zone_amount, 2)
+                'amount': round(zone_amount, 2),
+                'count': zone_count
             })
 
     new_zones_list.sort(key=lambda x: x['amount'], reverse=True)

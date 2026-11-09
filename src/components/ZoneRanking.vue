@@ -3,18 +3,8 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 
 const props = defineProps({
-  zoneRank: Array,
-  newZones: {
-    type: Array,
-    default: () => []
-  }
+  zoneRank: Array
 })
-
-function formatNewAmount(v) {
-  if (v == null) return ''
-  if (v < 100) return '¥' + v.toFixed(2)
-  return '¥' + (Math.floor(v / 10000 * 100) / 100).toFixed(2) + '万'
-}
 
 const mode = ref('amount')
 const containerRef = ref(null)
@@ -134,32 +124,6 @@ onUnmounted(() => animationContext?.revert())
       </div>
     </div>
 
-    <!-- 本月新专区（前置，数据来自 newZones） -->
-    <div v-if="newZones.length > 0" class="new-zones">
-      <div class="new-zones-head">
-        <span class="new-badge">🆕 本月新专区</span>
-        <span class="new-count">{{ newZones.length }} 个</span>
-      </div>
-      <div class="new-tags">
-        <span
-          v-for="z in newZones"
-          :key="z.name"
-          class="new-tag"
-          :title="z.name + ' · ' + formatNewAmount(z.amount)"
-        >
-          <span class="new-tag-name">{{ z.name }}</span>
-          <span class="new-tag-amt">{{ formatNewAmount(z.amount) }}</span>
-        </span>
-      </div>
-    </div>
-    <div v-else class="new-zones-empty">
-      <span class="new-badge muted">🆕 本月新专区</span>
-      <span class="new-count">0 个</span>
-    </div>
-
-    <!-- 分隔线 -->
-    <div class="divider"><span>已上量专区</span></div>
-
     <!-- Top3 领奖台 -->
     <div class="podium">
       <div
@@ -222,110 +186,6 @@ onUnmounted(() => animationContext?.revert())
   --panel-border: rgba(255, 255, 255, 0.74);
   --panel-backdrop: blur(14px);
 }
-
-/* 本月新专区（前置） */
-.new-zones {
-  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(16,185,129,0.05));
-  border: 1px solid rgba(34,197,94,0.28);
-  border-radius: 12px;
-  padding: 12px 14px 14px;
-  margin-bottom: 14px;
-}
-
-.new-zones-empty {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  padding: 2px 0;
-}
-
-.new-zones-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.new-badge {
-  font-size: 13px;
-  font-weight: 700;
-  color: #15803d;
-}
-
-.new-badge.muted {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.new-count {
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.new-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.new-tag {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 5px 10px;
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-  border: 1px solid #86efac;
-  border-radius: 8px;
-  font-size: 12px;
-  max-width: 100%;
-}
-
-.new-tag-name {
-  font-weight: 600;
-  color: #15803d;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 130px;
-}
-
-.new-tag-amt {
-  color: #16a34a;
-  font-weight: 700;
-  font-size: 11px;
-}
-
-/* 分隔线 */
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 4px 0 16px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.12), transparent);
-}
-
-.divider span {
-  white-space: nowrap;
-  letter-spacing: 1px;
-}
-
-
-
-
-
-
 
 /* Top3 领奖台 */
 .podium {

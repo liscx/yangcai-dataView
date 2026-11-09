@@ -1,7 +1,16 @@
 <script setup>
-defineProps({
-  zoneRank: Array
+import { computed } from 'vue'
+
+const props = defineProps({
+  zoneRank: Array,
+  newZones: {
+    type: Array,
+    default: () => []
+  }
 })
+
+// 新专区名称集合（用于标记 🆕）
+const newZoneNames = computed(() => new Set(props.newZones.map(z => z.name)))
 
 // 彩虹配色方案
 const rainbowColors = [
@@ -14,6 +23,13 @@ const rainbowColors = [
   { bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)', border: '#c4b5fd', text: '#7c3aed' },
   { bg: 'linear-gradient(135deg, #fdf2f8, #fce7f3)', border: '#f9a8d4', text: '#db2777' },
 ]
+
+// 本月新上量专区专用样式（绿色）
+const newTagStyle = {
+  background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
+  borderColor: '#86efac',
+  color: '#16a34a'
+}
 
 function getTagStyle(index) {
   const color = rainbowColors[index % rainbowColors.length]
@@ -29,10 +45,16 @@ function getTagStyle(index) {
   <article class="panel">
     <div class="panel-head">
       <h2>已上量专区</h2>
-      <span class="note">{{ zoneRank.length }} 个</span>
+      <span class="note">{{ zoneRank.length }} 个<span v-if="newZones.length > 0" class="note-new"> · 本月新上量 {{ newZones.length }}</span></span>
     </div>
     <div class="tags">
-      <span v-for="(zone, index) in zoneRank" :key="zone.name" class="tag" :style="getTagStyle(index)" :title="zone.name">{{ zone.name }}</span>
+      <span
+        v-for="(zone, index) in zoneRank"
+        :key="zone.name"
+        class="tag"
+        :style="newZoneNames.has(zone.name) ? newTagStyle : getTagStyle(index)"
+        :title="zone.name"
+      ><span v-if="newZoneNames.has(zone.name)" class="new-flag">🆕</span>{{ zone.name }}</span>
     </div>
   </article>
 </template>
@@ -83,5 +105,15 @@ function getTagStyle(index) {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.new-flag {
+  margin-right: 3px;
+  font-size: 11px;
+}
+
+.note-new {
+  color: #16a34a;
+  font-weight: 700;
 }
 </style>

@@ -210,7 +210,6 @@ onUnmounted(() => {
       <div class="column-stack column-left">
         <ZoneRanking
           :zone-rank="DATA.zoneRank"
-          :new-zones="DATA.newZones"
         />
         <OrderStatus :status-rank="DATA.statusRank" />
         <CategoryTop10 :data="DATA.categoryTop10" />
@@ -237,6 +236,7 @@ onUnmounted(() => {
         <AmountBands :amount-bands="DATA.amountBands" />
         <SupplierContribution
           :zone-rank="DATA.zoneRank"
+          :new-zones="DATA.newZones"
         />
       </div>
     </section>
