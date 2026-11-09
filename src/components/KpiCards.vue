@@ -175,8 +175,11 @@ onUnmounted(() => animationContext?.revert())
 
 <style scoped>
 .kpis {
+  flex: 1;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 1fr);
+  align-content: stretch;
   gap: 10px;
   margin-top: 0;
   align-items: stretch;
@@ -193,6 +196,7 @@ onUnmounted(() => animationContext?.revert())
   cursor: default;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .kpi:hover {

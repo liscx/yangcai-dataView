@@ -124,3 +124,27 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
+
+/* 顶部指标组共用组头：销售指标 / 对账结算指标 */
+.metric-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  min-height: 20px;
+}
+
+.metric-group-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  padding-left: 10px;
+  border-left: 3px solid var(--teal);
+  line-height: 1.2;
+}
+
+.metric-group-note {
+  font-size: 13px;
+  color: var(--muted);
+}

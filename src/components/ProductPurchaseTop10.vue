@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
+import StackTabs from './StackTabs.vue'
 
 const props = defineProps({
-  data: Array
+  data: Array,
+  stackTabs: Object
 })
 
 // 排序模式：'amount' 按金额 / 'quantity' 按采购件数
@@ -139,15 +141,23 @@ onUnmounted(() => animationContext?.revert())
           </svg>
         </button>
       </div>
-      <div class="seg">
-        <button
-          :class="{ active: mode === 'amount' }"
-          @click="switchMode('amount')"
-        >按金额</button>
-        <button
-          :class="{ active: mode === 'quantity' }"
-          @click="switchMode('quantity')"
-        >按采购件数</button>
+      <div class="head-right">
+        <div class="seg">
+          <button
+            :class="{ active: mode === 'amount' }"
+            @click="switchMode('amount')"
+          >按金额</button>
+          <button
+            :class="{ active: mode === 'quantity' }"
+            @click="switchMode('quantity')"
+          >按采购件数</button>
+        </div>
+        <StackTabs
+          v-if="stackTabs"
+          :tabs="stackTabs.tabs"
+          :active="stackTabs.active"
+          @switch="stackTabs.onSwitch"
+        />
       </div>
     </div>
     <table>
@@ -196,6 +206,13 @@ onUnmounted(() => animationContext?.revert())
 .panel-head h2 {
   font-size: 18px;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 

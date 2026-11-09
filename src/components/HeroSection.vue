@@ -81,7 +81,7 @@ onUnmounted(() => animationContext?.revert())
       <h1 ref="titleRef">阳光优采经营驾驶舱</h1>
       <div ref="subtitleRef" class="subtitle">专区收益、订单趋势、采购企业与供应商结构总览</div>
     </div>
-    <div class="hero-footer">
+    <div class="hero-side">
       <div ref="stampRef" class="stamp">
         数据截至：{{ dataEndDate }}<br>
         生成时间：{{ generatedAt }}
@@ -114,10 +114,11 @@ onUnmounted(() => animationContext?.revert())
   position: relative;
   flex: 1;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  padding: 18px 20px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 20px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
@@ -136,7 +137,10 @@ onUnmounted(() => animationContext?.revert())
 }
 
 .title-wrapper {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  white-space: nowrap;
 }
 
 h1 {
@@ -148,21 +152,23 @@ h1 {
 }
 
 .subtitle {
-  margin-top: 6px;
   color: var(--muted);
   font-size: 15px;
 }
 
-.hero-footer {
+.hero-side {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .stamp {
   color: var(--muted);
   font-size: 11px;
-  line-height: 1.7;
+  line-height: 1.55;
+  text-align: right;
 }
 
 .btn-group {

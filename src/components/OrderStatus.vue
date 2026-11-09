@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
+import StackTabs from './StackTabs.vue'
 
 const props = defineProps({
-  statusRank: Array
+  statusRank: Array,
+  stackTabs: Object
 })
 
 const containerRef = ref(null)
@@ -49,7 +51,15 @@ onUnmounted(() => animationContext?.revert())
   <article ref="containerRef" class="panel">
     <div class="panel-head">
       <h2>订单状态分布</h2>
-      <span class="note">按订单数</span>
+      <div class="head-right">
+        <span class="note">按订单数</span>
+        <StackTabs
+          v-if="stackTabs"
+          :tabs="stackTabs.tabs"
+          :active="stackTabs.active"
+          @switch="stackTabs.onSwitch"
+        />
+      </div>
     </div>
     <div class="status-list">
       <div
@@ -88,6 +98,12 @@ onUnmounted(() => animationContext?.revert())
 .status-list {
   display: grid;
   gap: 10px;
+}
+
+.head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .status-item {

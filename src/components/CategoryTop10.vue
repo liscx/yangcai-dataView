@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
+import StackTabs from './StackTabs.vue'
 
 const props = defineProps({
   data: {
     type: Array,
     default: () => []
-  }
+  },
+  stackTabs: Object
 })
 
 const mode = ref('amount')
@@ -57,7 +59,22 @@ function switchMode(m) {
           <button :class="{ active: mode === 'amount' }" @click="switchMode('amount')">按金额</button>
           <button :class="{ active: mode === 'count' }" @click="switchMode('count')">按采购件数</button>
         </div>
+        <StackTabs
+          v-if="stackTabs"
+          :tabs="stackTabs.tabs"
+          :active="stackTabs.active"
+          @switch="stackTabs.onSwitch"
+        />
       </div>
+    </div>
+
+    <!-- 与「商品采购 top10」表格表头等高的列标题 -->
+    <div class="cat-head">
+      <span>#</span>
+      <span>类目名称</span>
+      <span>占比</span>
+      <span class="num">{{ mode === 'amount' ? '金额' : '采购件数' }}</span>
+      <span class="num">份额</span>
     </div>
 
     <div class="scroll-area">
@@ -87,18 +104,21 @@ function switchMode(m) {
   --panel-backdrop: blur(14px);
 }
 
+/* 卡片标题 / 头部间距与「商品采购 top10」保持一致 */
 .panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  margin-bottom: 12px;
+  gap: 8px;
+  min-height: 26px;
+  margin-bottom: 10px;
 }
 
 .head-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .note {
@@ -109,9 +129,9 @@ function switchMode(m) {
 
 .panel-head h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--ink);
+  font-size: 18px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .seg {
@@ -139,12 +159,33 @@ function switchMode(m) {
 }
 
 /* 卡片内滚动区域 */
+/* 表头：th padding 9px 6px、13px 字号、1px 分隔线 —— 与商品采购 thead 等高 */
+.cat-head {
+  display: grid;
+  grid-template-columns: 22px minmax(70px, 1fr) 1.6fr 64px 34px;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.cat-head .num {
+  text-align: right;
+}
+
+/* 行高与「商品采购 top10」表格对齐：
+   表格 td padding 10px 6px + .rank 23px => 行内容 43px，含 1px 分隔线共 44px。
+   这里取消行间距、给每行固定 43px + 1px 分隔线，行距逐像素一致。 */
 .scroll-area {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   display: grid;
-  gap: 9px;
+  gap: 0;
   padding-right: 4px;
   align-content: start;
 }
@@ -172,12 +213,14 @@ function switchMode(m) {
   gap: 8px;
   align-items: center;
   font-size: 13px;
+  min-height: 43px;
+  border-bottom: 1px solid #edf1f7;
 }
 
 .cat-rank {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 23px;
+  height: 23px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -5,8 +5,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import DATA from './data/dashboard.json'
 import HeroSection from './components/HeroSection.vue'
 import KpiCards from './components/KpiCards.vue'
+import SettlementMetrics from './components/SettlementMetrics.vue'
+import StackPair from './components/StackPair.vue'
 import AiInsightBar from './components/AiInsightBar.vue'
 import ZoneRanking from './components/ZoneRanking.vue'
+import ZoneSupplierScale from './components/ZoneSupplierScale.vue'
 import OrderStatus from './components/OrderStatus.vue'
 import CategoryTop10 from './components/CategoryTop10.vue'
 import TrendCharts from './components/TrendCharts.vue'
@@ -183,16 +186,25 @@ onUnmounted(() => {
   <div ref="scaleStageRef" class="scale-stage">
     <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
     <main v-if="dashboardReady" ref="appRef" class="shell" :class="{ blurred: !authed }">
-    <!-- Hero + KPI 合并行 -->
-    <div class="hero-kpi-row">
+    <!-- 标题卡片：单独一行 -->
+    <div class="hero-row">
       <HeroSection
         :generated-at="DATA.generatedAt"
         :data-end-date="DATA.dataEndDate"
         @ai-analyze="showAiInsight = !showAiInsight"
       />
-      <KpiCards
-        :kpis="DATA.kpis"
-      />
+    </div>
+
+    <!-- 顶部指标行：左侧 KPI 卡片 + 右侧对账结算 3×2（暂用假数据） -->
+    <div class="top-metrics">
+      <div class="metric-group">
+        <div class="metric-group-head">
+          <span class="metric-group-title">销售指标</span>
+          <span class="metric-group-note">交易数据截至 {{ DATA.dataEndDate }}</span>
+        </div>
+        <KpiCards :kpis="DATA.kpis" />
+      </div>
+      <SettlementMetrics />
     </div>
 
     <!-- AI 解读栏 -->
@@ -206,13 +218,12 @@ onUnmounted(() => {
 
     <!-- 主要内容网格 -->
     <section class="grid">
-      <!-- 左列 -->
+      <!-- 左列：第 2、3 行合并放「各专区供应商规模」，与中列「近7天订单趋势」等高 -->
       <div class="column-stack column-left">
         <ZoneRanking
           :zone-rank="DATA.zoneRank"
         />
-        <OrderStatus :status-rank="DATA.statusRank" />
-        <CategoryTop10 :data="DATA.categoryTop10" />
+        <ZoneSupplierScale class="left-zone-scale" />
       </div>
 
       <!-- 中列 -->
@@ -227,13 +238,21 @@ onUnmounted(() => {
         />
       </div>
 
-      <!-- 右列 -->
+      <!-- 右列：第 2 行为堆叠卡（订单状态分布 / 订单金额分层） -->
       <div class="column-stack column-right">
         <SupplierStructure
           :supplier-types="DATA.supplierTypes"
           :kpis="DATA.kpis"
         />
-        <AmountBands :amount-bands="DATA.amountBands" />
+        <!-- 堆叠：订单状态分布（前） / 订单金额分层（后，被堆叠） -->
+        <StackPair front-label="订单状态" back-label="金额分层">
+          <template #front="{ stackTabs }">
+            <OrderStatus :status-rank="DATA.statusRank" :stack-tabs="stackTabs" />
+          </template>
+          <template #back="{ stackTabs }">
+            <AmountBands :amount-bands="DATA.amountBands" :stack-tabs="stackTabs" />
+          </template>
+        </StackPair>
         <SupplierContribution
           :zone-rank="DATA.zoneRank"
           :new-zones="DATA.newZones"
@@ -251,9 +270,15 @@ onUnmounted(() => {
         :ecommerce-data="DATA.ecommerceSuppliers"
         :local-data="DATA.localSuppliers"
       />
-      <ProductPurchaseTop10
-        :data="DATA.productPurchase"
-      />
+      <!-- 底部第 3 列：堆叠卡（三级类目 Top10 / 商品采购 top10） -->
+      <StackPair front-label="三级类目" back-label="商品采购">
+        <template #front="{ stackTabs }">
+          <CategoryTop10 :data="DATA.categoryTop10" :stack-tabs="stackTabs" />
+        </template>
+        <template #back="{ stackTabs }">
+          <ProductPurchaseTop10 :data="DATA.productPurchase" :stack-tabs="stackTabs" />
+        </template>
+      </StackPair>
     </section>
 
     <!-- 底部 -->
@@ -381,6 +406,14 @@ onUnmounted(() => {
   grid-row: span 3;
 }
 
+/* 左列「各专区供应商规模」跨第 2~3 行：与中列「近7天订单趋势」(grid-row 2/4) 等高，
+   宽度与同列的「专区排行榜」一致 */
+.left-zone-scale {
+  grid-row: 2 / 4;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .column-middle {
   grid-template-rows: subgrid;
 }
@@ -399,11 +432,29 @@ onUnmounted(() => {
   grid-row: 2 / 4;
 }
 
-.hero-kpi-row {
+.hero-row {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.top-metrics {
+  /* 统一卡片宽度：左 6 列 + 右 3 列 = 9 列，卡片间距 10px、组间距 16px
+     设单卡宽 c，则 100% = 9c + 7*10px(组内间距) + 16px(组间距)
+     => c = (100% - 86px) / 9，左右两侧按各自列数反推容器宽度，
+        两组卡片因此严格等宽，配合 stretch 也严格等高 */
+  --card-w: calc((100% - 86px) / 9);
   display: grid;
-  grid-template-columns: 1.16fr 2.68fr;
+  grid-template-columns:
+    calc(var(--card-w) + var(--card-w) + var(--card-w) + var(--card-w) + var(--card-w) + var(--card-w) + 50px)
+    calc(var(--card-w) + var(--card-w) + var(--card-w) + 20px);
   gap: 16px;
   align-items: stretch;
+}
+
+.metric-group {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .ai-bar-wrapper {
