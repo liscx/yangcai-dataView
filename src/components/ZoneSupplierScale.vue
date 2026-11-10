@@ -1,67 +1,31 @@
 <script setup>
-// 各专区供应商规模（预留卡片内容）
-// 本地供应商总数：取自「供应商列表20261109160622.xlsx」各专区真实分布（282 家 / 23 个专区）
-// 其余字段（电商挂载数、有订单数、转化率、付款情况）目前均为假数据，后续接真数据时替换 MOCK_RATIO 即可
+// 各专区供应商规模
+// 本地供应商各专区分布：取自《供应商列表》按「所属专区」真实计数
+// 电商入驻数：取自《专区电商入驻表》按「已入驻/需铺品（已入驻）」计数
+// 以上均由 gen_gysdz.py 提取进 dashboard-gysdz.json（zoneScale 字段）
 import { computed, ref } from 'vue'
+import GYSDZ from '../data/dashboard-gysdz.json'
 
-const LOCAL_ZONES = [
-  { name: '中国煤地电子商城', localTotal: 89 },
-  { name: '新疆阳光采购平台', localTotal: 43 },
-  { name: '新疆光正阳光优采平台', localTotal: 37 },
-  { name: '绍兴市阳光采购商城', localTotal: 24 },
-  { name: '小马易采电子商城', localTotal: 18 },
-  { name: '陕西省阳光优采平台', localTotal: 18 },
-  { name: '海南阳光采购平台', localTotal: 14 },
-  { name: '湖南省招标公司阳光优采', localTotal: 12 },
-  { name: '泰安市e采通', localTotal: 4 },
-  { name: '安徽省阳光优采平台', localTotal: 4 },
-  { name: '国弘热力阳光优采', localTotal: 3 },
-  { name: 'tenantguid:暂未配置专区', localTotal: 2 },
-  { name: '邯郸市阳光优采平台', localTotal: 2 },
-  { name: '宣城市阳光优采商城', localTotal: 2 },
-  { name: '兵团中新建阳光优采平台', localTotal: 2 },
-  { name: '株洲市国资委阳光优采专区', localTotal: 1 },
-  { name: '聊城泰岳置业有限公司阳光优采平台', localTotal: 1 },
-  { name: '郑州国企采购服务中心阳光优采', localTotal: 1 },
-  { name: '广东国义招标代理阳光优采商城', localTotal: 1 },
-  { name: '辽宁工程阳光采购平台电子商城', localTotal: 1 },
-  { name: '国泰新点阳光优采专区', localTotal: 1 },
-  { name: '酒泉市国企采购阳光优采', localTotal: 1 },
-  { name: '福州国资阳光采购商城', localTotal: 1 }
-]
-
-// 全局电商供应商池 32 家，各专区挂载数略有偏差（28~32）
-const ECOM_POOL = 32
-const MAX_SCALE = 90
-
-const rows = computed(() => LOCAL_ZONES.map((z, i) => {
-  const localOrdered = Math.min(z.localTotal, Math.round(z.localTotal * (0.55 + (i % 5) * 0.05)))
-  const ecomTotal = ECOM_POOL - (i % 5)
-  const ecomOrdered = Math.round(ecomTotal * (0.60 + (i % 4) * 0.06))
-  const total = z.localTotal + ecomTotal
+// 数据接入 dashboard-gysdz.json（zoneScale：各专区本地/电商分布，由 gen_gysdz.py 提取）
+const rows = computed(() => GYSDZ.zoneScale.map(z => {
+  const localTotal = z.localTotal
+  // 源数据无本地订单级明细，「有订单本地」暂以本地供应商总数近似
+  const localOrdered = z.localTotal
+  const ecomTotal = z.ecomTotal
+  const ecomOrdered = z.ecomOrdered
+  const total = localTotal + ecomTotal
   const ordered = localOrdered + ecomOrdered
-  const rate = Math.round(ordered / total * 100)
-  // 付款情况：有订单的供应商中已付款的比例
-  const payRate = 0.55 + (i % 7) * 0.05
-  const paid = Math.round(ordered * payRate)
-  const payPct = Math.round(payRate * 100)
-  return {
-    name: z.name,
-    localTotal: z.localTotal,
-    localOrdered,
-    ecomTotal,
-    ecomOrdered,
-    total,
-    ordered,
-    rate,
-    paid,
-    payable: ordered,
-    payPct
-  }
+  const rate = total ? Math.round(ordered / total * 100) : 0
+  return { name: z.name, localTotal, localOrdered, ecomTotal, ecomOrdered, total, ordered, rate, payRate: z.payRate }
 }))
+
+// 条形宽度按当前最大总家数自适应（避免总数超过固定刻度时被截断）
+const maxTotal = computed(() => Math.max(90, ...rows.value.map(r => r.total)))
 
 // 专区名称搜索：like 规则（名称包含关键字即命中，大小写不敏感）
 const keyword = ref('')
+// 数据截至：取自源数据快照日期（供应商列表文件名中的 2026-11-10）
+const zoneDataAsOf = GYSDZ.meta.zoneDataAsOf
 const filteredRows = computed(() => {
   const q = keyword.value.trim().toLowerCase()
   if (!q) return rows.value
@@ -69,18 +33,20 @@ const filteredRows = computed(() => {
 })
 
 function outerWidth(total) {
-  return Math.max(6, Math.round(total / MAX_SCALE * 100)) + '%'
+  return Math.max(6, Math.round(total / maxTotal.value * 100)) + '%'
+}
+
+// 采购人支付率配色：>=80% 绿 / 60-80% 金 / <60% 红
+function payColor(pct) {
+  if (pct >= 80) return 'var(--green)'
+  if (pct >= 60) return 'var(--gold)'
+  return 'var(--red)'
 }
 
 function innerWidth(ordered, total) {
   return Math.round(ordered / total * 100) + '%'
 }
 
-function payColor(pct) {
-  if (pct >= 80) return 'var(--green)'
-  if (pct >= 60) return 'var(--gold)'
-  return 'var(--red)'
-}
 </script>
 
 <template>
@@ -89,6 +55,7 @@ function payColor(pct) {
       <div class="panel-head">
         <h2>各专区供应商规模</h2>
         <div class="head-right">
+          <span class="asof-note" v-if="zoneDataAsOf">数据截至 {{ zoneDataAsOf }}</span>
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <circle cx="11" cy="11" r="7"></circle>
@@ -110,7 +77,7 @@ function payColor(pct) {
       <div class="metric-notes">
         <span>总家数 = 本地供应商 + 电商供应商</span>
         <span>转化率 = 有订单供应商数 / 总家数</span>
-        <span>付款 = 已付家数 / 应付款家数</span>
+        <span>支付率 = 采购人已支付比例（来自专区支付率表，未列入者按 100% 计）</span>
       </div>
 
       <div class="zone-list">
@@ -121,15 +88,19 @@ function payColor(pct) {
             class="metric"
             :title="`本地 ${row.localTotal} 家 + 电商 ${row.ecomTotal} 家 = ${row.total} 家`"
           >总家数 <b>{{ row.total }} 家</b></span>
+            <span
+              class="metric"
+              :title="`有订单：本地 ${row.localOrdered} + 电商 ${row.ecomOrdered} = ${row.ordered} 家`"
+            >有订单 <b>{{ row.ordered }} 家</b></span>
+            <span
+              class="metric pay"
+              :style="{ color: payColor(row.payRate) }"
+              :title="`采购人支付率 ${row.payRate}%（未列入支付率表的专区按 100% 计）`"
+            >支付率 <b>{{ row.payRate }}%</b></span>
           <span
             class="metric"
             :title="`有订单供应商 ${row.ordered} 家 / 总家数 ${row.total} 家 = ${row.rate}%`"
           >转化率 <b>{{ row.rate }}%</b></span>
-            <span
-              class="metric pay"
-              :style="{ color: payColor(row.payPct) }"
-              :title="`已付 ${row.paid} / 应付款 ${row.payable} 家`"
-            >付款 <b>{{ row.payPct }}%</b></span>
           </div>
 
           <div class="bar-line">
@@ -201,6 +172,12 @@ function payColor(pct) {
   font-size: 12px;
   color: var(--muted);
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.asof-note {
+  font-size: 12px;
+  color: var(--muted);
   white-space: nowrap;
 }
 
