@@ -1,0 +1,2514 @@
+{
+  "meta": {
+    "sourceDir": "D:\\dataView\\源数据",
+    "generatedAt": "2026-11-10T11:18:16",
+    "sources": {
+      "settlement": "阳光优采供应商结算.xlsx",
+      "supplierList": "供应商列表20261110100556.xlsx",
+      "ecomEntry": "专区电商入驻表.xlsx"
+    },
+    "notes": [
+      "结算/新点收益数据取自《阳光优采供应商结算.xlsx》；供应商分组标签与明细均来自该表真实行。",
+      "各专区本地供应商总数取自《供应商列表》按「所属专区」真实计数。",
+      "各专区电商入驻数取自《专区电商入驻表》，统计状态为「已入驻/需铺品（已入驻）」的单元格。",
+      "本地「有订单」在源数据中无订单级明细，暂以本地供应商总数近似（见 ZoneSupplierScale 组件注释）。",
+      "专区名称对齐仅经 ZONE_ALIASES 显式别名表，未做模糊匹配；未匹配电商专区见 unmatchedEcomZones。",
+      "采购人支付率来自专区支付率.txt（百分比 0-100），由用户另行提供；txt 未列出的专区按 100% 计。"
+    ],
+    "zoneNameAliasesApplied": {
+      "泰安市e采通平台": "泰安市e采通",
+      "湖南省招标公司阳光优采平台": "湖南省招标公司阳光优采",
+      "新疆光正电子商城": "新疆光正阳光优采平台",
+      "安徽省阳光采购电子商城": "安徽省阳光优采平台",
+      "宣城市国有企业采购电子商城": "宣城市阳光优采商城",
+      "郑州国企采购服务中心阳光优采平台": "郑州国企采购服务中心阳光优采"
+    },
+    "unmatchedEcomZones": [
+      {
+        "ecomZone": "大连市阳光采购服务平台",
+        "present": 2,
+        "ordered": 0
+      },
+      {
+        "ecomZone": "湛江市阳光优采平台",
+        "present": 20,
+        "ordered": 12
+      },
+      {
+        "ecomZone": "恩施州阳光优采平台",
+        "present": 20,
+        "ordered": 12
+      },
+      {
+        "ecomZone": "齐齐哈尔阳光优采专区",
+        "present": 2,
+        "ordered": 0
+      },
+      {
+        "ecomZone": "新疆丝路亚心数字科技发展有限公司阳光优采",
+        "present": 20,
+        "ordered": 10
+      },
+      {
+        "ecomZone": "广东省南方联合产权阳光优采",
+        "present": 20,
+        "ordered": 13
+      },
+      {
+        "ecomZone": "黑龙江要素平台电子商城（黑龙江中易晟联公司）",
+        "present": 20,
+        "ordered": 12
+      },
+      {
+        "ecomZone": "曲阜国投阳光优采平台",
+        "present": 3,
+        "ordered": 0
+      },
+      {
+        "ecomZone": "小E商城",
+        "present": 20,
+        "ordered": 12
+      }
+    ],
+    "unmatchedPayZones": [],
+    "payRateSource": "专区支付率.txt",
+    "zoneDataAsOf": "2026-11-10"
+  },
+  "settlement": {
+    "settledAmount": 1021666.66,
+    "periodCount": 105,
+    "newProfit": 27137.2,
+    "newProfitArrived": 5768.18,
+    "arrivedCount": 18,
+    "arrivalRate": 17.14,
+    "settledPeriods": 71,
+    "baseTotal": 1812934.57,
+    "totalTradeAmount": 1812934.57,
+    "payRatio": 56.35,
+    "dataEndDate": "2026-09-30"
+  },
+  "profitDetails": [
+    {
+      "id": 0,
+      "name": "得力集团有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 5,
+      "baseTotal": 128641.01,
+      "profitTotal": 1929.6,
+      "arrivedCount": 3,
+      "details": [
+        {
+          "supplier": "得力集团有限公司",
+          "category": "电商",
+          "start": "2025-12-01",
+          "end": "2026-02-28",
+          "base": 19549.52,
+          "ratio": "2.5%*0.6",
+          "profit": 293.24,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "得力集团有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-03-31",
+          "base": 23200.21,
+          "ratio": null,
+          "profit": 348.0,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "得力集团有限公司",
+          "category": "电商",
+          "start": "2026-04-01",
+          "end": "2026-04-30",
+          "base": 7499.04,
+          "ratio": null,
+          "profit": 112.48,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "得力集团有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 48658.49,
+          "ratio": null,
+          "profit": 729.87,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "得力集团有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 29733.75,
+          "ratio": null,
+          "profit": 446.01,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "绍兴市得力集实科技有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 3707.0,
+      "profitTotal": 55.61,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "绍兴市得力集实科技有限公司",
+          "category": "电商",
+          "start": "2026-08-01",
+          "end": "2026-08-31",
+          "base": 411.0,
+          "ratio": "2.5%*0.6",
+          "profit": 6.17,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "绍兴市得力集实科技有限公司",
+          "category": "电商",
+          "start": "2026-09-01",
+          "end": "2026-09-30",
+          "base": 3296.0,
+          "ratio": null,
+          "profit": 49.44,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "欧菲斯集团股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 120767.12,
+      "profitTotal": 1811.49,
+      "arrivedCount": 1,
+      "details": [
+        {
+          "supplier": "欧菲斯集团股份有限公司",
+          "category": "电商",
+          "start": "2025-09-01",
+          "end": "2026-03-31",
+          "base": 2520.78,
+          "ratio": "2.5%*0.6",
+          "profit": 37.8,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "欧菲斯集团股份有限公司",
+          "category": "电商",
+          "start": "2026-04-01",
+          "end": "2026-04-30",
+          "base": 14698.53,
+          "ratio": null,
+          "profit": 220.47,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "欧菲斯集团股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 54001.94,
+          "ratio": null,
+          "profit": 810.03,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "欧菲斯集团股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 49545.87,
+          "ratio": null,
+          "profit": 743.19,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "有部分订单未回款，已跟行业代表沟通",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "苏宁易购集团股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 249665.89,
+      "profitTotal": 3744.99,
+      "arrivedCount": 4,
+      "details": [
+        {
+          "supplier": "苏宁易购集团股份有限公司",
+          "category": "电商",
+          "start": "2025-12-01",
+          "end": "2026-02-28",
+          "base": 10180.36,
+          "ratio": "2.5%*0.6",
+          "profit": 152.7,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "苏宁易购集团股份有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 4204.7,
+          "ratio": null,
+          "profit": 63.07,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "苏宁易购集团股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 27374.48,
+          "ratio": null,
+          "profit": 410.62,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "苏宁易购集团股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 207906.35,
+          "ratio": null,
+          "profit": 3118.6,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "深圳齐心集团股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 49649.09,
+      "profitTotal": 744.72,
+      "arrivedCount": 2,
+      "details": [
+        {
+          "supplier": "深圳齐心集团股份有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 11926.45,
+          "ratio": "2.5%*0.6",
+          "profit": 178.89,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "深圳齐心集团股份有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 3280.6,
+          "ratio": null,
+          "profit": 49.2,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "深圳齐心集团股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 17238.64,
+          "ratio": null,
+          "profit": 258.58,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "深圳齐心集团股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 17203.4,
+          "ratio": null,
+          "profit": 258.05,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "紫迈电子商务有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 11238.34,
+      "profitTotal": 168.57,
+      "arrivedCount": 1,
+      "details": [
+        {
+          "supplier": "紫迈电子商务有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 523.27,
+          "ratio": "2.5%*0.6",
+          "profit": 7.84,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "紫迈电子商务有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 2664.4,
+          "ratio": null,
+          "profit": 39.97,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "有部分订单未回款，供应商在梳理哪些订单未回款",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "紫迈电子商务有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 1476.95,
+          "ratio": null,
+          "profit": 22.15,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "有部分订单未回款，供应商在梳理哪些订单未回款",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "紫迈电子商务有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 6573.72,
+          "ratio": null,
+          "profit": 98.61,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "有部分订单未回款，供应商在梳理哪些订单未回款",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "深圳市怡亚通供应链股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 3,
+      "baseTotal": 2105.46,
+      "profitTotal": 31.58,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "深圳市怡亚通供应链股份有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 1152.0,
+          "ratio": "2.5%*0.6",
+          "profit": 17.28,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "深圳市怡亚通供应链股份有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-06-30",
+          "base": 83.14,
+          "ratio": null,
+          "profit": 1.25,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "深圳市怡亚通供应链股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 870.32,
+          "ratio": null,
+          "profit": 13.05,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "震坤行工业超市（上海）有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 1421.15,
+      "profitTotal": 21.31,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "震坤行工业超市（上海）有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 1247.64,
+          "ratio": "2.5%*0.6",
+          "profit": 18.71,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "CG-17693998109390001未回款，已跟行业代表沟通",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "震坤行工业超市（上海）有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-06-30",
+          "base": 173.51,
+          "ratio": null,
+          "profit": 2.6,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "史泰博(上海)有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 24776.8,
+      "profitTotal": 371.64,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "史泰博(上海)有限公司",
+          "category": "电商",
+          "start": "2025-08-01",
+          "end": "2026-01-31",
+          "base": 710.3,
+          "ratio": "2.5%*0.6",
+          "profit": 10.65,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": "供应商回复只结算已收到货款的订单"
+        },
+        {
+          "supplier": "史泰博(上海)有限公司",
+          "category": "电商",
+          "start": "2026-02-01",
+          "end": "2026-05-31",
+          "base": 2282.2,
+          "ratio": null,
+          "profit": 34.22,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "史泰博(上海)有限公司",
+          "category": "电商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 8185.8,
+          "ratio": null,
+          "profit": 122.79,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "史泰博(上海)有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 13598.5,
+          "ratio": null,
+          "profit": 203.98,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "咸亨国际科技股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 9581.03,
+      "profitTotal": 143.7,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "咸亨国际科技股份有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 673.28,
+          "ratio": "2.5%*0.6",
+          "profit": 10.09,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "咸亨国际科技股份有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 1798.65,
+          "ratio": null,
+          "profit": 26.97,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "咸亨国际科技股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 3477.99,
+          "ratio": null,
+          "profit": 52.17,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "咸亨国际科技股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 3631.11,
+          "ratio": null,
+          "profit": 54.47,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "浙江宏伟供应链集团股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 15789.9,
+      "profitTotal": 236.84,
+      "arrivedCount": 2,
+      "details": [
+        {
+          "supplier": "浙江宏伟供应链集团股份有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 452.71,
+          "ratio": "2.5%*0.6",
+          "profit": 6.78,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "浙江宏伟供应链集团股份有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 356.0,
+          "ratio": null,
+          "profit": 5.34,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "浙江宏伟供应链集团股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 8727.87,
+          "ratio": null,
+          "profit": 130.92,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "浙江宏伟供应链集团股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 6253.32,
+          "ratio": null,
+          "profit": 93.8,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "阳采集团有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 58530.28,
+      "profitTotal": 877.95,
+      "arrivedCount": 2,
+      "details": [
+        {
+          "supplier": "阳采集团有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-02-28",
+          "base": 202.95,
+          "ratio": "2.5%*0.6",
+          "profit": 3.04,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "阳采集团有限公司",
+          "category": "电商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 2148.21,
+          "ratio": null,
+          "profit": 32.22,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "阳采集团有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 22612.5,
+          "ratio": null,
+          "profit": 339.19,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "阳采集团有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 33566.62,
+          "ratio": null,
+          "profit": 503.5,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "鑫方盛数智科技股份有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 4,
+      "baseTotal": 50073.17,
+      "profitTotal": 751.08,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "鑫方盛数智科技股份有限公司",
+          "category": "电商",
+          "start": "2026-01-01",
+          "end": "2026-01-31",
+          "base": 831.87,
+          "ratio": "2.5%*0.6",
+          "profit": 12.47,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "鑫方盛数智科技股份有限公司",
+          "category": "电商",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "base": 19660.37,
+          "ratio": null,
+          "profit": 294.9,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "鑫方盛数智科技股份有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 6064.02,
+          "ratio": null,
+          "profit": 90.96,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "鑫方盛数智科技股份有限公司",
+          "category": "电商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 23516.91,
+          "ratio": null,
+          "profit": 352.75,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "江苏比高机电设备有限公司",
+      "category": "电商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 247.24,
+      "profitTotal": 3.71,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "江苏比高机电设备有限公司",
+          "category": "电商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 247.24,
+          "ratio": "2.5%*0.6",
+          "profit": 3.71,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "北京鸿昌一创文具礼品有限责任公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 12.5,
+      "profitTotal": 0.19,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "北京鸿昌一创文具礼品有限责任公司",
+          "category": "本地供应商",
+          "start": "2026-02-01",
+          "end": "2026-06-30",
+          "base": 12.5,
+          "ratio": "2.5%*0.6",
+          "profit": 0.19,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "南京誉天电子科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 46458.0,
+      "profitTotal": 696.87,
+      "arrivedCount": 1,
+      "details": [
+        {
+          "supplier": "南京誉天电子科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-03-01",
+          "end": "2026-06-30",
+          "base": 46458.0,
+          "ratio": "2.5%*0.6",
+          "profit": 696.87,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "徐州江琦商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 56064.0,
+      "profitTotal": 840.96,
+      "arrivedCount": 1,
+      "details": [
+        {
+          "supplier": "徐州江琦商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-03-01",
+          "end": "2026-06-30",
+          "base": 14036.0,
+          "ratio": "2.5%*0.6",
+          "profit": 210.54,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "徐州江琦商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 42028.0,
+          "ratio": null,
+          "profit": 630.42,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "CG-17860773898560001未回款，已跟行业代表沟通",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "南京优亚逸信息技术有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 3,
+      "baseTotal": 26660.0,
+      "profitTotal": 399.9,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "南京优亚逸信息技术有限公司",
+          "category": "本地供应商",
+          "start": "2026-03-01",
+          "end": "2026-04-30",
+          "base": 12830.0,
+          "ratio": "2.5%*0.6",
+          "profit": 192.45,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "南京优亚逸信息技术有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 7360.0,
+          "ratio": null,
+          "profit": 110.4,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "南京优亚逸信息技术有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 6470.0,
+          "ratio": null,
+          "profit": 97.05,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "快购达集团有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 6771.0,
+      "profitTotal": 101.57,
+      "arrivedCount": 1,
+      "details": [
+        {
+          "supplier": "快购达集团有限公司",
+          "category": "本地供应商",
+          "start": "2026-04-01",
+          "end": "2026-06-30",
+          "base": 2730.0,
+          "ratio": "2.5%*0.6",
+          "profit": 40.95,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "已到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "快购达集团有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 4041.0,
+          "ratio": null,
+          "profit": 60.62,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "福州恒胜达数码科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 14760.0,
+      "profitTotal": 221.4,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "福州恒胜达数码科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-04-01",
+          "end": "2026-06-30",
+          "base": 14760.0,
+          "ratio": "2.5%*0.6",
+          "profit": 221.4,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "徐州德普机电科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 14500.0,
+      "profitTotal": 217.5,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "徐州德普机电科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-04-01",
+          "end": "2026-06-30",
+          "base": 14500.0,
+          "ratio": "2.5%*0.6",
+          "profit": 217.5,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "徐州鑫驰办公设备有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 3,
+      "baseTotal": 9675.0,
+      "profitTotal": 145.13,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "徐州鑫驰办公设备有限公司",
+          "category": "本地供应商",
+          "start": "2026-02-01",
+          "end": "2026-04-30",
+          "base": 6870.0,
+          "ratio": "2.5%*0.6",
+          "profit": 103.05,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "徐州鑫驰办公设备有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 515.0,
+          "ratio": null,
+          "profit": 7.73,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "徐州鑫驰办公设备有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 2290.0,
+          "ratio": null,
+          "profit": 34.35,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "昌吉市联金商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 31170.0,
+      "profitTotal": 467.55,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "昌吉市联金商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-04-01",
+          "end": "2026-06-30",
+          "base": 31170.0,
+          "ratio": "2.5%*0.6",
+          "profit": 467.55,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同未寄回，没有立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "大江科技集团有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 7240.78,
+      "profitTotal": 108.61,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "大江科技集团有限公司",
+          "category": "本地供应商",
+          "start": "2026-04-01",
+          "end": "2026-06-30",
+          "base": 4728.16,
+          "ratio": "2.5%*0.6",
+          "profit": 70.92,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "大江科技集团有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 2512.62,
+          "ratio": null,
+          "profit": 37.69,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "福州安妮全办公用品有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 26450.0,
+      "profitTotal": 396.75,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "福州安妮全办公用品有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 26450.0,
+          "ratio": "2.5%*0.6",
+          "profit": 396.75,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "福州众利电子有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 84096.0,
+      "profitTotal": 1261.44,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "福州众利电子有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 84096.0,
+          "ratio": "2.5%*0.6",
+          "profit": 1261.44,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无合同，正在签署",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "邯郸市淇咚萌办公设备有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 27310.0,
+      "profitTotal": 409.65,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "邯郸市淇咚萌办公设备有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 27310.0,
+          "ratio": "2.5%*0.6",
+          "profit": 409.65,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同已签署，未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "联动时刻（北京）科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 36930.0,
+      "profitTotal": 553.95,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "联动时刻（北京）科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 36930.0,
+          "ratio": "2.5%*0.6",
+          "profit": 553.95,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "马鞍山市枫平商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 1237.0,
+      "profitTotal": 18.56,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "马鞍山市枫平商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 820.0,
+          "ratio": "2.5%*0.6",
+          "profit": 12.3,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同已签署，未立项",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "马鞍山市枫平商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 417.0,
+          "ratio": null,
+          "profit": 6.26,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "马鞍山市紫金电子科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 1525.0,
+      "profitTotal": 22.88,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "马鞍山市紫金电子科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 1460.0,
+          "ratio": "2.5%*0.6",
+          "profit": 21.9,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同已签署，未立项",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "马鞍山市紫金电子科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 65.0,
+          "ratio": null,
+          "profit": 0.98,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同已签署，未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "南京市栖霞区辉誉家具销售中心",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 40400.0,
+      "profitTotal": 606.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "南京市栖霞区辉誉家具销售中心",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 40400.0,
+          "ratio": "2.5%*0.6",
+          "profit": 606.0,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无合同，正在签署",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "南京行胜言网络科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 23480.5,
+      "profitTotal": 352.21,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "南京行胜言网络科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-06-30",
+          "base": 23480.5,
+          "ratio": "2.5%*0.6",
+          "profit": 352.21,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无合同，正在签署",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "青海友德商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 32829.0,
+      "profitTotal": 492.44,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "青海友德商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 32829.0,
+          "ratio": "2.5%*0.6",
+          "profit": 492.44,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "厦门忻德监测科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 12600.0,
+      "profitTotal": 189.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "厦门忻德监测科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 12600.0,
+          "ratio": "2.5%*0.6",
+          "profit": 189.0,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "绍兴市文樟商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 71995.03,
+      "profitTotal": 1079.92,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "绍兴市文樟商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 7063.5,
+          "ratio": "2.5%*0.6",
+          "profit": 105.95,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无立项",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "绍兴市文樟商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 64931.53,
+          "ratio": null,
+          "profit": 973.97,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "name": "绍兴中创信息技术有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 178437.45,
+      "profitTotal": 2676.56,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "绍兴中创信息技术有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 71488.95,
+          "ratio": "2.5%*0.6",
+          "profit": 1072.33,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "无立项",
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "绍兴中创信息技术有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 106948.5,
+          "ratio": null,
+          "profit": 1604.23,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "name": "西安富百电子科技有限责任公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 9615.0,
+      "profitTotal": 144.23,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "西安富百电子科技有限责任公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 5950.0,
+          "ratio": "2.5%*0.6",
+          "profit": 89.25,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "西安富百电子科技有限责任公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 3665.0,
+          "ratio": null,
+          "profit": 54.98,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "name": "西宁市城北区广盛办公家具经销部",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 3650.0,
+      "profitTotal": 54.75,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "西宁市城北区广盛办公家具经销部",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 3650.0,
+          "ratio": "2.5%*0.6",
+          "profit": 54.75,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "新疆三合兴盛电子科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 2,
+      "baseTotal": 62792.0,
+      "profitTotal": 941.88,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "新疆三合兴盛电子科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 39982.0,
+          "ratio": "2.5%*0.6",
+          "profit": 599.73,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        },
+        {
+          "supplier": "新疆三合兴盛电子科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 22810.0,
+          "ratio": null,
+          "profit": 342.15,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "宣城中联信息科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 1760.0,
+      "profitTotal": 26.4,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "宣城中联信息科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 1760.0,
+          "ratio": "2.5%*0.6",
+          "profit": 26.4,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "CG-17790902426050001，供应商回复该笔订单未回款，暂不支付返点，未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "正元伟业商业集团有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 730.0,
+      "profitTotal": 10.95,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "正元伟业商业集团有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 730.0,
+          "ratio": "2.5%*0.6",
+          "profit": 10.95,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "清远市新思维电脑设备有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 28600.0,
+      "profitTotal": 429.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "清远市新思维电脑设备有限公司",
+          "category": "本地供应商",
+          "start": "2026-05-01",
+          "end": "2026-06-30",
+          "base": 28600.0,
+          "ratio": "2.5%*0.6",
+          "profit": 429.0,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "name": "安徽协君信息科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 24200.0,
+      "profitTotal": 363.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "安徽协君信息科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 24200.0,
+          "ratio": "2.5%*0.6",
+          "profit": 363.0,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "北京中仪慧普科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 7305.0,
+      "profitTotal": 109.58,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "北京中仪慧普科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 7305.0,
+          "ratio": "2.5%*0.6",
+          "profit": 109.58,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "name": "昌吉市思诺办公用品店",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 25.8,
+      "profitTotal": 0.39,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "昌吉市思诺办公用品店",
+          "category": "本地供应商",
+          "start": "2026-06-01",
+          "end": "2026-08-31",
+          "base": 25.8,
+          "ratio": "2.5%*0.6",
+          "profit": 0.39,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "CG-17827006110510001，供应商回复该笔订单未回款，暂不支付返点，未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "name": "昌吉市优美文化办公商行",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 30275.0,
+      "profitTotal": 454.13,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "昌吉市优美文化办公商行",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 30275.0,
+          "ratio": "2.5%*0.6",
+          "profit": 454.13,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "name": "三丰科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 44841.0,
+      "profitTotal": 672.62,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "三丰科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 44841.0,
+          "ratio": "2.5%*0.6",
+          "profit": 672.62,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "name": "沙依巴克区克西街志辰恒业电子产品经销部",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 3200.0,
+      "profitTotal": 48.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "沙依巴克区克西街志辰恒业电子产品经销部",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 3200.0,
+          "ratio": "2.5%*0.6",
+          "profit": 48.0,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "name": "上海宝鸟服饰有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 39280.0,
+      "profitTotal": 589.2,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "上海宝鸟服饰有限公司",
+          "category": "本地供应商",
+          "start": "2026-08-01",
+          "end": "2026-08-31",
+          "base": 39280.0,
+          "ratio": "2.5%*0.6",
+          "profit": 589.2,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "已立项，但供应商回复货款未结，暂不支付返点",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 49,
+      "name": "苏州红狮商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 4342.98,
+      "profitTotal": 65.14,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "苏州红狮商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-08-01",
+          "end": "2026-08-31",
+          "base": 4342.98,
+          "ratio": "2.5%*0.6",
+          "profit": 65.14,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "name": "无锡力卓电脑有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 6936.1,
+      "profitTotal": 104.04,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "无锡力卓电脑有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 6936.1,
+          "ratio": "2.5%*0.6",
+          "profit": 104.04,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "name": "徐州市文佳办公用品经营部",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 1700.0,
+      "profitTotal": 25.5,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "徐州市文佳办公用品经营部",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 1700.0,
+          "ratio": "2.5%*0.6",
+          "profit": 25.5,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "对应专区未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "name": "焱垚（天津）实验器材销售有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 19992.5,
+      "profitTotal": 299.89,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "焱垚（天津）实验器材销售有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 19992.5,
+          "ratio": "2.5%*0.6",
+          "profit": 299.89,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 53,
+      "name": "浙江盛世冠冠科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 1202.4,
+      "profitTotal": 18.04,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "浙江盛世冠冠科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 1202.4,
+          "ratio": "2.5%*0.6",
+          "profit": 18.04,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "name": "湖南省招",
+      "category": "本地供应商",
+      "ratioText": "2%*0.6",
+      "count": 1,
+      "baseTotal": 18917.0,
+      "profitTotal": 227.0,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "湖南省招",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 18917.0,
+          "ratio": "2%*0.6",
+          "profit": 227.0,
+          "sealed": "已用",
+          "invoiced": "已开",
+          "arrived": "暂未到账",
+          "progress": null,
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 55,
+      "name": "青海纳卡商贸有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 26700.0,
+      "profitTotal": 400.5,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "青海纳卡商贸有限公司",
+          "category": "本地供应商",
+          "start": "2026-08-01",
+          "end": "2026-08-31",
+          "base": 26700.0,
+          "ratio": "2.5%*0.6",
+          "profit": 400.5,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "合同已签署，未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "name": "西安齐心信息科技有限公司",
+      "category": "本地供应商",
+      "ratioText": "2.5%*0.6",
+      "count": 1,
+      "baseTotal": 75.05,
+      "profitTotal": 1.13,
+      "arrivedCount": 0,
+      "details": [
+        {
+          "supplier": "西安齐心信息科技有限公司",
+          "category": "本地供应商",
+          "start": "2026-07-01",
+          "end": "2026-08-31",
+          "base": 75.05,
+          "ratio": "2.5%*0.6",
+          "profit": 1.13,
+          "sealed": "待用",
+          "invoiced": "待开",
+          "arrived": "暂未到账",
+          "progress": "未立项",
+          "cycle": null,
+          "remark": null
+        }
+      ]
+    }
+  ],
+  "zoneScale": [
+    {
+      "name": "中国煤地电子商城",
+      "localTotal": 89,
+      "ecomTotal": 21,
+      "ecomOrdered": 15,
+      "payRate": 90.2
+    },
+    {
+      "name": "新疆阳光采购平台",
+      "localTotal": 43,
+      "ecomTotal": 20,
+      "ecomOrdered": 11,
+      "payRate": 100.0
+    },
+    {
+      "name": "新疆光正阳光优采平台",
+      "localTotal": 37,
+      "ecomTotal": 20,
+      "ecomOrdered": 9,
+      "payRate": 75.9
+    },
+    {
+      "name": "绍兴市阳光采购商城",
+      "localTotal": 24,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 86.0
+    },
+    {
+      "name": "小马易采电子商城",
+      "localTotal": 18,
+      "ecomTotal": 7,
+      "ecomOrdered": 5,
+      "payRate": 100.0
+    },
+    {
+      "name": "陕西省阳光优采平台",
+      "localTotal": 18,
+      "ecomTotal": 2,
+      "ecomOrdered": 0,
+      "payRate": 0.0
+    },
+    {
+      "name": "海南阳光采购平台",
+      "localTotal": 14,
+      "ecomTotal": 20,
+      "ecomOrdered": 9,
+      "payRate": 90.0
+    },
+    {
+      "name": "湖南省招标公司阳光优采",
+      "localTotal": 12,
+      "ecomTotal": 2,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "泰安市e采通",
+      "localTotal": 4,
+      "ecomTotal": 14,
+      "ecomOrdered": 12,
+      "payRate": 100.0
+    },
+    {
+      "name": "安徽省阳光优采平台",
+      "localTotal": 4,
+      "ecomTotal": 20,
+      "ecomOrdered": 12,
+      "payRate": 100.0
+    },
+    {
+      "name": "国弘热力阳光优采",
+      "localTotal": 3,
+      "ecomTotal": 20,
+      "ecomOrdered": 12,
+      "payRate": 100.0
+    },
+    {
+      "name": "tenantguid:暂未配置专区",
+      "localTotal": 2,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "邯郸市阳光优采平台",
+      "localTotal": 2,
+      "ecomTotal": 20,
+      "ecomOrdered": 10,
+      "payRate": 100.0
+    },
+    {
+      "name": "宣城市阳光优采商城",
+      "localTotal": 2,
+      "ecomTotal": 20,
+      "ecomOrdered": 12,
+      "payRate": 0.0
+    },
+    {
+      "name": "兵团中新建阳光优采平台",
+      "localTotal": 2,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "株洲市国资委阳光优采专区",
+      "localTotal": 1,
+      "ecomTotal": 2,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "聊城泰岳置业有限公司阳光优采平台",
+      "localTotal": 1,
+      "ecomTotal": 20,
+      "ecomOrdered": 11,
+      "payRate": 100.0
+    },
+    {
+      "name": "郑州国企采购服务中心阳光优采",
+      "localTotal": 1,
+      "ecomTotal": 4,
+      "ecomOrdered": 4,
+      "payRate": 100.0
+    },
+    {
+      "name": "广东国义招标代理阳光优采商城",
+      "localTotal": 1,
+      "ecomTotal": 11,
+      "ecomOrdered": 11,
+      "payRate": 100.0
+    },
+    {
+      "name": "辽宁工程阳光采购平台电子商城",
+      "localTotal": 1,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "国泰新点阳光优采专区",
+      "localTotal": 1,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "酒泉市国企采购阳光优采",
+      "localTotal": 1,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    },
+    {
+      "name": "福州国资阳光采购商城",
+      "localTotal": 1,
+      "ecomTotal": 0,
+      "ecomOrdered": 0,
+      "payRate": 100.0
+    }
+  ]
+}

@@ -3,20 +3,9 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { gsap } from 'gsap'
 import ProfitDetailModal from './ProfitDetailModal.vue'
 
-// 假数据：暂不接入计算脚本，后续替换此处即可
-// 字段口径与 calc_settlement_metrics.py 一致
-const MOCK = {
-  settledAmount: 1021666.66,
-  newProfit: 27137.20,
-  periodCount: 105,
-  arrivalRate: 17.14,
-  payRatio: 56.35,
-  settledPeriods: 71,
-  arrivedCount: 18,
-  baseTotal: 1812934.57,
-  totalTradeAmount: 6143477.97,
-  dataEndDate: '2026-09-30'
-}
+// 数据接入 dashboard-gysdz.json（由 gen_gysdz.py 从源数据提取，口径与 calc_settlement_metrics.py 一致）
+import GYSDZ from '../data/dashboard-gysdz.json'
+const S = GYSDZ.settlement
 
 const sectionRef = ref(null)
 const showProfitModal = ref(false)
@@ -32,47 +21,33 @@ function exactYuan(value) {
 
 const cards = [
   {
-    label: '已结算总金额',
-    value: MOCK.settledAmount,
+    label: '供应商结算基数总额',
+    value: S.baseTotal,
     format: 'money',
-    hint: `用印/开票期数：${MOCK.settledPeriods}`,
-    color: '#0d9488'
-  },
-  {
-    label: '总结账期数',
-    value: MOCK.periodCount,
-    format: 'number',
-    hint: '一次结算则为一个结算期',
-    color: '#7c3aed'
-  },
-  {
-    label: '供应商收款总金额',
-    value: MOCK.baseTotal,
-    format: 'money',
-    hint: exact(MOCK.baseTotal),
+    hint: `结算基数合计（${S.periodCount} 期）`,
     color: '#b7791f'
   },
   {
-    label: '新点收益',
-    value: MOCK.newProfit,
+    label: '供应商已结算总金额',
+    value: S.settledAmount,
     format: 'money',
-    hint: exact(MOCK.newProfit),
+    hint: `用印/开票期数：${S.settledPeriods}`,
+    color: '#0d9488'
+  },
+  {
+    label: '新点应收分成',
+    value: S.newProfit,
+    format: 'money',
+    hint: exact(S.newProfit),
     color: '#2563eb',
     interactive: true
   },
   {
-    label: '收益到账率',
-    value: MOCK.arrivalRate,
-    format: 'percent',
-    hint: `已到账 ${MOCK.arrivedCount} / ${MOCK.periodCount} 期`,
+    label: '新点已收分成',
+    value: S.newProfitArrived,
+    format: 'money',
+    hint: `已到账 ${S.arrivedCount} 期`,
     color: '#16a34a'
-  },
-  {
-    label: '供应商收款比例',
-    value: MOCK.payRatio,
-    format: 'percent',
-    hint: `总额： ${exactYuan(MOCK.totalTradeAmount)}`,
-    color: '#c2410c'
   }
 ]
 
@@ -123,7 +98,7 @@ onUnmounted(() => animationContext?.revert())
   <section ref="sectionRef" class="settlement-metrics">
     <div class="metric-group-head">
       <span class="metric-group-title">对账结算指标</span>
-      <span class="metric-group-note">结算数据截至 {{ MOCK.dataEndDate }}</span>
+      <span class="metric-group-note">结算数据截至 {{ S.dataEndDate }}</span>
     </div>
     <div class="kpis">
       <div
@@ -156,7 +131,7 @@ onUnmounted(() => animationContext?.revert())
 .kpis {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, 1fr);
   align-content: stretch;
   gap: 10px;

@@ -1,8 +1,9 @@
 <script setup>
 // 新点收益明细弹窗 —— 方案 B：按供应商行折叠
-// 分组标签（供应商名称 / 类别）取自「阳光优采对账结算_结算期间标准化.xlsx」，原样保留；
-// 其余数值均为假数据，按该表 14 列结构生成，仅用于演示交互。
+// 分组与逐期明细（供应商名称 / 类别 / 结算期间 / 结算基数 / 分成 / 用印 / 开票 / 到账 …）
+// 全部取自 dashboard-gysdz.json（由 gen_gysdz.py 从《阳光优采供应商结算.xlsx》真实提取）。
 import { computed, ref, watch, onUnmounted } from 'vue'
+import GYSDZ from '../data/dashboard-gysdz.json'
 
 const props = defineProps({
   open: { type: Boolean, default: false }
@@ -21,136 +22,50 @@ const COLUMNS = [
   { key: 'arrived', label: '是否到账' }
 ]
 
-const SUPPLIERS = [
-  ['得力集团有限公司', '电商'],
-  ['绍兴市得力集实科技有限公司', '电商'],
-  ['欧菲斯集团股份有限公司', '电商'],
-  ['苏宁易购集团股份有限公司', '电商'],
-  ['深圳齐心集团股份有限公司', '电商'],
-  ['紫迈电子商务有限公司', '电商'],
-  ['深圳市怡亚通供应链股份有限公司', '电商'],
-  ['震坤行工业超市（上海）有限公司', '电商'],
-  ['史泰博(上海)有限公司', '电商'],
-  ['咸亨国际科技股份有限公司', '电商'],
-  ['浙江宏伟供应链集团股份有限公司', '电商'],
-  ['阳采集团有限公司', '电商'],
-  ['鑫方盛数智科技股份有限公司', '电商'],
-  ['江苏比高机电设备有限公司', '电商'],
-  ['北京鸿昌一创文具礼品有限责任公司', '本地供应商'],
-  ['南京誉天电子科技有限公司', '本地供应商'],
-  ['徐州江琦商贸有限公司', '本地供应商'],
-  ['南京优亚逸信息技术有限公司', '本地供应商'],
-  ['快购达集团有限公司', '本地供应商'],
-  ['福州恒胜达数码科技有限公司', '本地供应商'],
-  ['徐州德普机电科技有限公司', '本地供应商'],
-  ['徐州鑫驰办公设备有限公司', '本地供应商'],
-  ['昌吉市联金商贸有限公司', '本地供应商'],
-  ['大江科技集团有限公司', '本地供应商'],
-  ['福州安妮全办公用品有限公司', '本地供应商'],
-  ['福州众利电子有限公司', '本地供应商'],
-  ['邯郸市淇咚萌办公设备有限公司', '本地供应商'],
-  ['联动时刻（北京）科技有限公司', '本地供应商'],
-  ['马鞍山市枫平商贸有限公司', '本地供应商'],
-  ['马鞍山市紫金电子科技有限公司', '本地供应商'],
-  ['南京市栖霞区辉誉家具销售中心', '本地供应商'],
-  ['南京行胜言网络科技有限公司', '本地供应商'],
-  ['青海友德商贸有限公司', '本地供应商'],
-  ['厦门忻德监测科技有限公司', '本地供应商'],
-  ['绍兴市文樟商贸有限公司', '本地供应商'],
-  ['绍兴中创信息技术有限公司', '本地供应商'],
-  ['西安富百电子科技有限责任公司', '本地供应商'],
-  ['西宁市城北区广盛办公家具经销部', '本地供应商'],
-  ['新疆三合兴盛电子科技有限公司', '本地供应商'],
-  ['宣城中联信息科技有限公司', '本地供应商'],
-  ['正元伟业商业集团有限公司', '本地供应商'],
-  ['清远市新思维电脑设备有限公司', '本地供应商'],
-  ['安徽协君信息科技有限公司', '本地供应商'],
-  ['北京中仪慧普科技有限公司', '本地供应商'],
-  ['昌吉市思诺办公用品店', '本地供应商'],
-  ['昌吉市优美文化办公商行', '本地供应商'],
-  ['三丰科技有限公司', '本地供应商'],
-  ['沙依巴克区克西街志辰恒业电子产品经销部', '本地供应商'],
-  ['上海宝鸟服饰有限公司', '本地供应商'],
-  ['苏州红狮商贸有限公司', '本地供应商'],
-  ['无锡力卓电脑有限公司', '本地供应商'],
-  ['徐州市文佳办公用品经营部', '本地供应商'],
-  ['焱垚（天津）实验器材销售有限公司', '本地供应商'],
-  ['浙江盛世冠冠科技有限公司', '本地供应商'],
-  ['湖南省招', '本地供应商'],
-  ['青海纳卡商贸有限公司', '本地供应商'],
-  ['西安齐心信息科技有限公司', '本地供应商']
+// 分组与逐期明细全部取自 dashboard-gysdz.json（由 gen_gysdz.py 从《阳光优采供应商结算.xlsx》提取）
+const groups = GYSDZ.profitDetails
+const S = GYSDZ.settlement
+// 顶部 4 个汇总卡片：与外部「对账结算指标」4 张卡片字段完全一致
+const settlementCards = [
+  { label: '供应商结算基数总额', value: S.baseTotal },
+  { label: '供应商已结算总金额', value: S.settledAmount },
+  { label: '新点应收分成', value: S.newProfit },
+  { label: '新点已收分成', value: S.newProfitArrived }
 ]
-
-const PROFIT_TOTAL = 27137.20
-const PERIODS = [
-  ['2025-12-01', '2026-02-28'],
-  ['2026-03-01', '2026-03-31'],
-  ['2026-04-01', '2026-04-30'],
-  ['2026-05-01', '2026-06-30'],
-  ['2026-07-01', '2026-08-31'],
-  ['2026-09-01', '2026-09-30']
-]
-
-// 57 组共 105 期：前 8 组各 5 期、接着 8 组各 3 期、其余各 1 期
-const SIZES = Array.from({ length: 57 }, (_, i) => (i < 8 ? 5 : i < 16 ? 3 : 1))
-const PERIOD_COUNT = SIZES.reduce((a, b) => a + b, 0)
-
-// 生成 105 个假分成金额，并校准合计恰好等于卡片上的 ¥27,137.20
-const raw = Array.from({ length: PERIOD_COUNT }, (_, i) => 120 + (i * 47 % 380) + (i % 7) * 3.7)
-const factor = PROFIT_TOTAL / raw.reduce((a, b) => a + b, 0)
-const profits = raw.map(v => Math.round(v * factor * 100) / 100)
-const diff = Math.round((PROFIT_TOTAL - profits.reduce((a, b) => a + b, 0)) * 100) / 100
-profits[PERIOD_COUNT - 1] = Math.round((profits[PERIOD_COUNT - 1] + diff) * 100) / 100
-
-let cursor = 0
-const groups = SIZES.map((size, gi) => {
-  const [name, category] = SUPPLIERS[gi]
-  const ratioText = gi % 4 === 0 ? '2%*0.6' : '2.5%*0.6'
-  const rate = gi % 4 === 0 ? 0.012 : 0.015
-  const details = []
-  for (let k = 0; k < size; k++) {
-    const idx = cursor++
-    const period = PERIODS[(gi + k) % PERIODS.length]
-    const profit = profits[idx]
-    const invoiced = idx % 3 === 0 ? '待开' : '已开'
-    details.push({
-      supplier: name,
-      category,
-      start: period[0],
-      end: period[1],
-      base: Math.round(profit / rate * 100) / 100,
-      ratio: ratioText,
-      profit,
-      sealed: idx % 3 === 0 ? '待用' : '已用',
-      invoiced,
-      invoiceAmount: invoiced === '已开' ? profit : 0,
-      arrived: idx % 6 < 2 ? '已到账' : '暂未到账',
-      progress: idx % 11 === 0 ? '有部分订单未回款，供应商在梳理' : '',
-      cycle: '',
-      remark: ''
-    })
-  }
-  return {
-    id: gi,
-    name,
-    category,
-    ratioText,
-    count: size,
-    baseTotal: Math.round(details.reduce((s, d) => s + d.base, 0) * 100) / 100,
-    profitTotal: Math.round(details.reduce((s, d) => s + d.profit, 0) * 100) / 100,
-    arrivedCount: details.filter(d => d.arrived === '已到账').length,
-    details
-  }
-})
-
+const PROFIT_TOTAL = S.newProfit
+const PERIOD_COUNT = S.periodCount
 const expanded = ref(new Set())
 
 // 供应商名称搜索：like 规则（名称包含关键字即命中，大小写不敏感）
 const keyword = ref('')
+
+// 是否到账筛选：all=全部 / arrived=仅已到账 / pending=仅暂未到账
+// 作用在「结算期」级别：组内有任意匹配状态的结算期才显示该组；展开后仅展示匹配的明细行，汇总数随筛选同步
+const arrivedFilter = ref('all')
+const round2 = (v) => Math.round(v * 100) / 100
+const viewGroups = computed(() => {
+  if (arrivedFilter.value === 'all') return groups
+  const isArrived = arrivedFilter.value === 'arrived'
+  return groups
+    .map(g => {
+      const details = g.details.filter(d => isArrived ? d.arrived === '已到账' : d.arrived === '暂未到账')
+      if (!details.length) return null
+      return {
+        ...g,
+        details,
+        count: details.length,
+        baseTotal: round2(details.reduce((s, d) => s + d.base, 0)),
+        profitTotal: round2(details.reduce((s, d) => s + d.profit, 0)),
+        arrivedCount: details.filter(d => d.arrived === '已到账').length
+      }
+    })
+    .filter(Boolean)
+})
+
 const filteredGroups = computed(() => {
   const q = keyword.value.trim().toLowerCase()
-  if (!q) return groups
-  return groups.filter(g => g.name.toLowerCase().includes(q))
+  if (!q) return viewGroups.value
+  return viewGroups.value.filter(g => g.name.toLowerCase().includes(q))
 })
 
 const allExpanded = computed(() =>
@@ -198,29 +113,26 @@ onUnmounted(() => document.removeEventListener('keydown', onKey))
         <div class="modal-head">
           <div>
             <h2>新点收益明细</h2>
-            <span class="modal-sub">按供应商分组折叠 · 数值为示例数据</span>
+            <span class="modal-sub">按供应商分组折叠 · 数值取自《阳光优采供应商结算.xlsx》真实数据</span>
           </div>
           <button class="close-btn" aria-label="关闭" @click="emit('close')">×</button>
         </div>
 
         <div class="modal-metrics">
-          <div class="mini-metric">
-            <span>累计新点收益</span>
-            <b>{{ money(PROFIT_TOTAL) }}</b>
-          </div>
-          <div class="mini-metric">
-            <span>供应商</span>
-            <b>{{ groups.length }} 家</b>
-          </div>
-          <div class="mini-metric">
-            <span>结算期数</span>
-            <b>{{ PERIOD_COUNT }} 期</b>
+          <div class="mini-metric" v-for="(c, i) in settlementCards" :key="i">
+            <span>{{ c.label }}</span>
+            <b>{{ money(c.value) }}</b>
           </div>
         </div>
 
         <div class="table-toolbar">
           <span class="toolbar-hint">点击供应商行展开该组结算期明细，汇总数据从「开始时间」列起展示</span>
           <button class="tool-btn" @click="toggleAll">{{ allExpanded ? '全部收起' : '全部展开' }}</button>
+          <select class="filter-select" v-model="arrivedFilter" aria-label="是否到账筛选">
+            <option value="all">到账状态：全部</option>
+            <option value="arrived">已到账</option>
+            <option value="pending">暂未到账</option>
+          </select>
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <circle cx="11" cy="11" r="7"></circle>
@@ -364,7 +276,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKey))
 
 .modal-metrics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -421,7 +333,29 @@ onUnmounted(() => document.removeEventListener('keydown', onKey))
   color: var(--blue);
 }
 
-.tool-btn, .search-box, .hit-count {
+.filter-select {
+  height: 27px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f8fafc;
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.filter-select:hover {
+  border-color: var(--blue);
+}
+
+.filter-select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.tool-btn, .filter-select, .search-box, .hit-count {
   flex-shrink: 0;
 }
 
