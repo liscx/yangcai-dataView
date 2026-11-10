@@ -25,13 +25,6 @@ const COLUMNS = [
 // 分组与逐期明细全部取自 dashboard-gysdz.json（由 gen_gysdz.py 从《阳光优采供应商结算.xlsx》提取）
 const groups = GYSDZ.profitDetails
 const S = GYSDZ.settlement
-// 顶部 4 个汇总卡片：与外部「对账结算指标」4 张卡片字段完全一致
-const settlementCards = [
-  { label: '供应商结算基数总额', value: S.baseTotal },
-  { label: '供应商已结算总金额', value: S.settledAmount },
-  { label: '新点应收分成', value: S.newProfit },
-  { label: '新点已收分成', value: S.newProfitArrived }
-]
 const PROFIT_TOTAL = S.newProfit
 const PERIOD_COUNT = S.periodCount
 const expanded = ref(new Set())
@@ -66,6 +59,30 @@ const filteredGroups = computed(() => {
   const q = keyword.value.trim().toLowerCase()
   if (!q) return viewGroups.value
   return viewGroups.value.filter(g => g.name.toLowerCase().includes(q))
+})
+
+// 顶部 4 张卡片：随「是否到账筛选 + 名称搜索」实时重算（统计当前可见的全部结算期明细）
+// 字段顺序/口径与外部「对账结算指标」4 张卡片一致：
+//   供应商结算基数总额 = 全部可见期结算基数之和
+//   供应商已结算总金额 = 可见期中「已用印/已开票」的结算基数之和
+//   新点应收分成 = 可见期新点分成之和（应收=全部）
+//   新点已收分成 = 可见期中「已到账」的新点分成之和
+const summaryCards = computed(() => {
+  let baseTotal = 0, settledAmount = 0, newProfit = 0, newProfitArrived = 0
+  for (const g of filteredGroups.value) {
+    for (const d of g.details) {
+      baseTotal += d.base
+      if (d.sealed === '已用' || d.invoiced === '已开') settledAmount += d.base
+      newProfit += d.profit
+      if (d.arrived === '已到账') newProfitArrived += d.profit
+    }
+  }
+  return [
+    { label: '供应商结算基数总额', value: round2(baseTotal) },
+    { label: '供应商已结算总金额', value: round2(settledAmount) },
+    { label: '新点应收分成', value: round2(newProfit) },
+    { label: '新点已收分成', value: round2(newProfitArrived) }
+  ]
 })
 
 const allExpanded = computed(() =>
@@ -119,7 +136,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKey))
         </div>
 
         <div class="modal-metrics">
-          <div class="mini-metric" v-for="(c, i) in settlementCards" :key="i">
+          <div class="mini-metric" v-for="(c, i) in summaryCards" :key="i">
             <span>{{ c.label }}</span>
             <b>{{ money(c.value) }}</b>
           </div>
