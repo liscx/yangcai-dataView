@@ -1,10 +1,10 @@
 {
   "meta": {
     "sourceDir": "D:\\dataView\\源数据",
-    "generatedAt": "2026-11-10T11:18:16",
+    "generatedAt": "2026-11-19T10:25:02",
     "sources": {
       "settlement": "阳光优采供应商结算.xlsx",
-      "supplierList": "供应商列表20261110100556.xlsx",
+      "supplierList": "供应商列表20261113155613.xlsx",
       "ecomEntry": "专区电商入驻表.xlsx"
     },
     "notes": [
@@ -25,6 +25,11 @@
     },
     "unmatchedEcomZones": [
       {
+        "ecomZone": "邯郸市阳光优采平台",
+        "present": 20,
+        "ordered": 10
+      },
+      {
         "ecomZone": "大连市阳光采购服务平台",
         "present": 2,
         "ordered": 0
@@ -38,6 +43,11 @@
         "ecomZone": "恩施州阳光优采平台",
         "present": 20,
         "ordered": 12
+      },
+      {
+        "ecomZone": "株洲市国资委阳光优采专区",
+        "present": 2,
+        "ordered": 0
       },
       {
         "ecomZone": "齐齐哈尔阳光优采专区",
@@ -60,6 +70,11 @@
         "ordered": 12
       },
       {
+        "ecomZone": "聊城泰岳置业有限公司阳光优采平台",
+        "present": 20,
+        "ordered": 11
+      },
+      {
         "ecomZone": "曲阜国投阳光优采平台",
         "present": 3,
         "ordered": 0
@@ -68,11 +83,21 @@
         "ecomZone": "小E商城",
         "present": 20,
         "ordered": 12
+      },
+      {
+        "ecomZone": "广东国义招标代理阳光优采商城",
+        "present": 11,
+        "ordered": 11
+      },
+      {
+        "ecomZone": "郑州国企采购服务中心阳光优采平台",
+        "present": 4,
+        "ordered": 4
       }
     ],
     "unmatchedPayZones": [],
     "payRateSource": "专区支付率.txt",
-    "zoneDataAsOf": "2026-11-10"
+    "zoneDataAsOf": "2026-11-13"
   },
   "settlement": {
     "settledAmount": 1021666.66,
@@ -2351,21 +2376,21 @@
   "zoneScale": [
     {
       "name": "中国煤地电子商城",
-      "localTotal": 89,
+      "localTotal": 90,
       "ecomTotal": 21,
       "ecomOrdered": 15,
       "payRate": 90.2
     },
     {
       "name": "新疆阳光采购平台",
-      "localTotal": 43,
+      "localTotal": 42,
       "ecomTotal": 20,
       "ecomOrdered": 11,
       "payRate": 100.0
     },
     {
       "name": "新疆光正阳光优采平台",
-      "localTotal": 37,
+      "localTotal": 33,
       "ecomTotal": 20,
       "ecomOrdered": 9,
       "payRate": 75.9
@@ -2379,21 +2404,21 @@
     },
     {
       "name": "小马易采电子商城",
-      "localTotal": 18,
+      "localTotal": 17,
       "ecomTotal": 7,
       "ecomOrdered": 5,
       "payRate": 100.0
     },
     {
       "name": "陕西省阳光优采平台",
-      "localTotal": 18,
+      "localTotal": 17,
       "ecomTotal": 2,
       "ecomOrdered": 0,
       "payRate": 0.0
     },
     {
       "name": "海南阳光采购平台",
-      "localTotal": 14,
+      "localTotal": 13,
       "ecomTotal": 20,
       "ecomOrdered": 9,
       "payRate": 90.0
@@ -2406,105 +2431,35 @@
       "payRate": 100.0
     },
     {
-      "name": "泰安市e采通",
-      "localTotal": 4,
-      "ecomTotal": 14,
-      "ecomOrdered": 12,
-      "payRate": 100.0
-    },
-    {
       "name": "安徽省阳光优采平台",
-      "localTotal": 4,
-      "ecomTotal": 20,
-      "ecomOrdered": 12,
-      "payRate": 100.0
-    },
-    {
-      "name": "国弘热力阳光优采",
       "localTotal": 3,
       "ecomTotal": 20,
       "ecomOrdered": 12,
       "payRate": 100.0
     },
     {
-      "name": "tenantguid:暂未配置专区",
+      "name": "泰安市e采通",
       "localTotal": 2,
-      "ecomTotal": 0,
-      "ecomOrdered": 0,
+      "ecomTotal": 14,
+      "ecomOrdered": 12,
       "payRate": 100.0
     },
     {
-      "name": "邯郸市阳光优采平台",
+      "name": "国弘热力阳光优采",
       "localTotal": 2,
       "ecomTotal": 20,
-      "ecomOrdered": 10,
+      "ecomOrdered": 12,
       "payRate": 100.0
     },
     {
       "name": "宣城市阳光优采商城",
-      "localTotal": 2,
+      "localTotal": 1,
       "ecomTotal": 20,
       "ecomOrdered": 12,
       "payRate": 0.0
     },
     {
-      "name": "兵团中新建阳光优采平台",
-      "localTotal": 2,
-      "ecomTotal": 0,
-      "ecomOrdered": 0,
-      "payRate": 100.0
-    },
-    {
-      "name": "株洲市国资委阳光优采专区",
-      "localTotal": 1,
-      "ecomTotal": 2,
-      "ecomOrdered": 0,
-      "payRate": 100.0
-    },
-    {
-      "name": "聊城泰岳置业有限公司阳光优采平台",
-      "localTotal": 1,
-      "ecomTotal": 20,
-      "ecomOrdered": 11,
-      "payRate": 100.0
-    },
-    {
-      "name": "郑州国企采购服务中心阳光优采",
-      "localTotal": 1,
-      "ecomTotal": 4,
-      "ecomOrdered": 4,
-      "payRate": 100.0
-    },
-    {
-      "name": "广东国义招标代理阳光优采商城",
-      "localTotal": 1,
-      "ecomTotal": 11,
-      "ecomOrdered": 11,
-      "payRate": 100.0
-    },
-    {
-      "name": "辽宁工程阳光采购平台电子商城",
-      "localTotal": 1,
-      "ecomTotal": 0,
-      "ecomOrdered": 0,
-      "payRate": 100.0
-    },
-    {
       "name": "国泰新点阳光优采专区",
-      "localTotal": 1,
-      "ecomTotal": 0,
-      "ecomOrdered": 0,
-      "payRate": 100.0
-    },
-    {
-      "name": "酒泉市国企采购阳光优采",
-      "localTotal": 1,
-      "ecomTotal": 0,
-      "ecomOrdered": 0,
-      "payRate": 100.0
-    },
-    {
-      "name": "福州国资阳光采购商城",
       "localTotal": 1,
       "ecomTotal": 0,
       "ecomOrdered": 0,
