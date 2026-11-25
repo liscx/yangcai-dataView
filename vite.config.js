@@ -70,6 +70,10 @@ function createVisitorLogger() {
     const DEDUPE_WINDOW_MS = 5 * 60 * 1000
     const seenMap = new Map() // ip -> lastWriteTimestamp
 
+    // 模块行为事件：单一文件累积，不按天分文件、不做去重
+    const EVENT_FILE = join(LOG_DIR, 'event_log.csv')
+    const EVENT_HEADER = '时间,会话ID,IP,路径,事件类型,模块ID,模块名称,元素,值,进入方式,停留ms'
+
     function formatDate(d = new Date()) {
         const pad = n => String(n).padStart(2, '0')
         return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -81,6 +85,20 @@ function createVisitorLogger() {
         // 包含逗号/引号/换行的字段用引号包裹，引号双写
         if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"'
         return s
+    }
+
+    // 防 Excel 公式注入：先判断原始值，再转义（否则被引号包裹的 = 开头值会漏检）
+    function csvSafe(v) {
+        const raw = v == null ? '' : String(v)
+        return csvEscape(/^[=+\-@]/.test(raw) ? "'" + raw : raw)
+    }
+
+    // 前端只传毫秒时间戳，服务端统一 +8 转成北京时间 YYYY-MM-DD HH:mm:ss
+    // 不依赖服务器本机时区，也不需要客户端时区设置
+    function toBeijing(ts) {
+        const n = typeof ts === 'number' ? ts : Date.parse(ts)
+        const base = Number.isFinite(n) ? n : Date.now()
+        return new Date(base + 8 * 3600 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     }
 
     function appendRow(row) {
@@ -96,6 +114,17 @@ function createVisitorLogger() {
             appendFileSync(file, '时间,IP,路径,UA,Referer,进入方式,screen,语言,时区\n')
         }
         appendFileSync(file, line, 'utf8')
+    }
+
+    // 一次请求的多条事件合并写入，减少 IO 也避免并发交错
+    function appendEventRows(rows) {
+        if (!rows.length) return
+        if (!existsSync(LOG_DIR)) mkdirSync(LOG_DIR, {recursive: true})
+        const isNew = !existsSync(EVENT_FILE) || statSync(EVENT_FILE).size === 0
+        let out = ''
+        if (isNew) out += '\uFEFF' + EVENT_HEADER + '\n'
+        out += rows.map(r => r.map(csvSafe).join(',')).join('\n') + '\n'
+        appendFileSync(EVENT_FILE, out, 'utf8')
     }
 
     function getClientIp(req) {
@@ -155,6 +184,43 @@ function createVisitorLogger() {
                 res.end(JSON.stringify({ok: false, error: err.message}))
             }
         })
+
+        // /api/log-event：模块级查看/点击事件，批量写入单一 event_log.csv
+        // 与访问日志彻底分开：不按天分文件、不做 5 分钟去重、时间由服务端转成北京时间
+        server.middlewares.use('/api/log-event', async (req, res) => {
+            if (req.method !== 'POST') {
+                res.statusCode = 405
+                return res.end('Method Not Allowed')
+            }
+            try {
+                const chunks = []
+                for await (const c of req) chunks.push(c)
+                const body = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
+                const events = Array.isArray(body) ? body : (Array.isArray(body.events) ? body.events : [])
+                const ctx = body.context || {}
+                const ip = getClientIp(req) || ctx.ip || ''
+                const rows = events.slice(0, 200).map(e => [
+                    toBeijing(e.ts),
+                    ctx.sessionId || '',
+                    ip,
+                    ctx.path || '',
+                    e.type || '',
+                    e.moduleId || '',
+                    e.moduleName || '',
+                    e.element || '',
+                    e.value || '',
+                    ctx.entry || '',
+                    Number.isFinite(Number(e.dwell)) ? Math.round(Number(e.dwell)) : 0
+                ])
+                appendEventRows(rows)
+                res.setHeader('Content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({ok: true, written: rows.length}))
+            } catch (err) {
+                res.statusCode = 500
+                res.setHeader('Content-Type', 'application/json; charset=utf-8')
+                res.end(JSON.stringify({ok: false, error: err.message}))
+            }
+        })
     }
 
     return {
@@ -165,8 +231,16 @@ function createVisitorLogger() {
             const unwatch = () => {
                 try {
                     server.watcher.unwatch('src/assets/visitor_log_*.csv')
+                    server.watcher.unwatch('src/assets/event_log.csv')
                 } catch (_) {}
             }
+            // event_log.csv 是运行时首次上报才创建的，创建时立刻移出监听
+            server.watcher.on('add', filePath => {
+                const p = String(filePath).replace(/\\/g, '/')
+                if (p.endsWith('/src/assets/event_log.csv') || /\/src\/assets\/visitor_log_.*\.csv$/.test(p)) {
+                    try { server.watcher.unwatch(filePath) } catch (_) {}
+                }
+            })
             unwatch()
             // 兜底：HMR 文件监听后再 unwatch 一次（处理运行时新增的文件）
             setTimeout(unwatch, 1000)

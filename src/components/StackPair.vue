@@ -30,6 +30,7 @@ function switchTo(target) {
 
   const topEl = active.value === 'front' ? frontRef.value : backRef.value
   const behindEl = active.value === 'front' ? backRef.value : frontRef.value
+  window.__ygycView?.(behindEl, target === 'front' ? props.frontLabel : props.backLabel)
 
   const tl = gsap.timeline({
     onComplete: () => {

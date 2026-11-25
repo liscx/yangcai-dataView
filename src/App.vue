@@ -20,6 +20,7 @@ import TopStackCards from './components/TopStackCards.vue'
 import SupplierTypeStackCards from './components/SupplierTypeStackCards.vue'
 import ProductPurchaseTop10 from './components/ProductPurchaseTop10.vue'
 import DashboardFooter from './components/DashboardFooter.vue'
+import { startTracking } from './tracking.js'
 
 const appRef = ref(null)
 const scaleStageRef = ref(null)
@@ -84,13 +85,18 @@ function checkPassword() {
 // 访问者 IP / 客户端上下文记录：
 // 登录成功后（包括密码 + logo 4 连击后门两条路径）触发，
 // 让 Vite dev middleware 拿到访问者真实 IP 并 append 到 src/assets/visitor_log_YYYY-MM-DD.csv。
+// 同时启动模块行为埋点，事件写入单一 src/assets/event_log.csv。
 async function recordVisit(entry) {
+  let ip = ''
   try {
-    // 1. 先问后端要 IP
     const ipRes = await fetch('/api/client-ip')
-    const {ip} = await ipRes.json()
+    ip = (await ipRes.json()).ip || ''
+  } catch (err) {
+    console.warn('[visitor-log] client-ip failed:', err)
+  }
 
-    // 2. 带上前端上下文 POST 给后端写日志
+  try {
+    // 带上前端上下文 POST 给后端写日志
     await fetch('/api/log-visit', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -110,6 +116,15 @@ async function recordVisit(entry) {
     // 静默失败 — 不影响正常登录
     console.warn('[visitor-log] failed:', err)
   }
+
+  // 等 DOM 渲染完再采集首屏模块，确保 [data-track] 元素都已存在
+  await nextTick()
+  startTracking({
+    sessionId: 'S-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+    ip,
+    path: window.location.pathname,
+    entry
+  })
 }
 
 // 3分钟无操作自动锁定
@@ -187,7 +202,7 @@ onUnmounted(() => {
     <div ref="scaleRef" class="page-scale" :style="{ transform: `scale(${scaleRatio})`, transformOrigin: 'left top', width: '1920px' }">
     <main v-if="dashboardReady" ref="appRef" class="shell" :class="{ blurred: !authed }">
     <!-- 标题卡片：单独一行 -->
-    <div class="hero-row">
+    <div class="hero-row" data-track-id="hero" data-track="阳光优采经营驾驶舱">
       <HeroSection
         :generated-at="DATA.generatedAt"
         :data-end-date="DATA.dataEndDate"
@@ -197,18 +212,18 @@ onUnmounted(() => {
 
     <!-- 顶部指标行：左侧 KPI 卡片 + 右侧对账结算 3×2（暂用假数据） -->
     <div class="top-metrics">
-      <div class="metric-group">
+      <div class="metric-group" data-track-id="kpi" data-track="销售指标">
         <div class="metric-group-head">
           <span class="metric-group-title">销售指标</span>
           <span class="metric-group-note">交易数据截至 {{ DATA.dataEndDate }}</span>
         </div>
         <KpiCards :kpis="DATA.kpis" />
       </div>
-      <SettlementMetrics />
+      <SettlementMetrics data-track-id="settlement" data-track="对账结算指标" />
     </div>
 
     <!-- AI 解读栏 -->
-    <div class="ai-bar-wrapper">
+    <div class="ai-bar-wrapper" data-track-id="ai-insight" data-track="AI 解读栏">
       <AiInsightBar
         :active="showAiInsight"
         :dashboard-data="DATA"
@@ -222,8 +237,9 @@ onUnmounted(() => {
       <div class="column-stack column-left">
         <ZoneRanking
           :zone-rank="DATA.zoneRank"
+          data-track-id="zone-ranking" data-track="专区排行榜"
         />
-        <ZoneSupplierScale class="left-zone-scale" />
+        <ZoneSupplierScale class="left-zone-scale" data-track-id="zone-supplier-scale" data-track="各专区供应商规模" />
       </div>
 
       <!-- 中列 -->
@@ -235,6 +251,7 @@ onUnmounted(() => {
           :week-trend="DATA.weekTrend"
           :week-trend-zones="DATA.weekTrendZones"
           :monthly-summary="DATA.monthlySummary"
+          data-track-id="trend-charts" data-track="近半年订单趋势·订单日历·近7天订单趋势"
         />
       </div>
 
@@ -243,9 +260,10 @@ onUnmounted(() => {
         <SupplierStructure
           :supplier-types="DATA.supplierTypes"
           :kpis="DATA.kpis"
+          data-track-id="supplier-structure" data-track="供应商类型结构"
         />
         <!-- 堆叠：订单状态分布（前） / 订单金额分层（后，被堆叠） -->
-        <StackPair front-label="订单状态" back-label="金额分层">
+        <StackPair front-label="订单状态" back-label="金额分层" data-track-id="stack-order" data-track="订单状态分布·订单金额分层">
           <template #front="{ stackTabs }">
             <OrderStatus :status-rank="DATA.statusRank" :stack-tabs="stackTabs" />
           </template>
@@ -256,6 +274,7 @@ onUnmounted(() => {
         <SupplierContribution
           :zone-rank="DATA.zoneRank"
           :new-zones="DATA.newZones"
+          data-track-id="supplier-contribution" data-track="已上量专区"
         />
       </div>
     </section>
@@ -265,13 +284,15 @@ onUnmounted(() => {
       <TopStackCards
         :buyer-data="DATA.buyerRank"
         :supplier-data="DATA.supplierRank"
+        data-track-id="top-stack" data-track="采购企业 top10·供应商 top10"
       />
       <SupplierTypeStackCards
         :ecommerce-data="DATA.ecommerceSuppliers"
         :local-data="DATA.localSuppliers"
+        data-track-id="supplier-type-stack" data-track="电商供应商 top10·本地供应商 top10"
       />
       <!-- 底部第 3 列：堆叠卡（三级类目 Top10 / 商品采购 top10） -->
-      <StackPair front-label="三级类目" back-label="商品采购">
+      <StackPair front-label="三级类目" back-label="商品采购" data-track-id="stack-category" data-track="三级类目 Top10·商品采购 top10">
         <template #front="{ stackTabs }">
           <CategoryTop10 :data="DATA.categoryTop10" :stack-tabs="stackTabs" />
         </template>
@@ -282,7 +303,7 @@ onUnmounted(() => {
     </section>
 
     <!-- 底部 -->
-    <DashboardFooter />
+    <DashboardFooter data-track-id="footer" data-track="页脚" />
     </main>
     </div>
   </div>

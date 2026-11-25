@@ -314,6 +314,7 @@ function switchCard(targetCard) {
   const isTrendFront = activeCard.value === 'trend'
   const topEl    = isTrendFront ? trendCardRef.value : calendarCardRef.value
   const behindEl = isTrendFront ? calendarCardRef.value : trendCardRef.value
+  window.__ygycView?.(behindEl, targetCard)
 
   const tl = gsap.timeline({
     onComplete: () => {

@@ -141,6 +141,7 @@ function switchCard(targetCard) {
   const isEcomFront = activeCard.value === 'ecom'
   const topEl = isEcomFront ? ecomCardRef.value : localCardRef.value
   const behindEl = isEcomFront ? localCardRef.value : ecomCardRef.value
+  window.__ygycView?.(behindEl, targetCard)
 
   const tl = gsap.timeline({
     onComplete: () => {

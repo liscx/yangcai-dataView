@@ -117,15 +117,17 @@ function onKey(e) {
   if (e.key === 'Escape') emit('close')
 }
 watch(() => props.open, v => {
-  if (v) document.addEventListener('keydown', onKey)
-  else document.removeEventListener('keydown', onKey)
+  if (v) {
+    document.addEventListener('keydown', onKey)
+    window.__ygycTrack?.('view', 'profit-modal', '新点收益明细', '打开')
+  } else document.removeEventListener('keydown', onKey)
 })
 onUnmounted(() => document.removeEventListener('keydown', onKey))
 </script>
 
 <template>
   <Teleport to="body">
-    <div v-if="open" class="modal-overlay" @click.self="emit('close')">
+    <div v-if="open" class="modal-overlay" data-track-id="profit-modal" data-track="新点收益明细" @click.self="emit('close')">
       <div class="modal-card" role="dialog" aria-modal="true" aria-label="新点收益明细">
         <div class="modal-head">
           <div>

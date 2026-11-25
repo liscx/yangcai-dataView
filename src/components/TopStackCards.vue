@@ -153,6 +153,7 @@ function switchCard(targetCard) {
   const isBuyerFront = activeCard.value === 'buyer'
   const topEl = isBuyerFront ? buyerCardRef.value : supplierCardRef.value
   const behindEl = isBuyerFront ? supplierCardRef.value : buyerCardRef.value
+  window.__ygycView?.(behindEl, targetCard)
 
   const tl = gsap.timeline({
     onComplete: () => {
